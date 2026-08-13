@@ -1,6 +1,6 @@
-name: Build APK
+name: Build APK & AAB
 
-# Build release APK của SubTrack bằng Gradle trực tiếp trên GitHub Actions
+# Build release APK + AAB của SubTrack bằng Gradle trực tiếp trên GitHub Actions
 # (không dùng EAS, không cần token EAS). Chạy trên push main + manual trigger.
 
 on:
@@ -12,8 +12,8 @@ permissions:
   contents: read
 
 jobs:
-  build-apk:
-    name: Build release APK (Gradle)
+  build-apk-aab:
+    name: Build release APK + AAB (Gradle)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,10 +43,21 @@ jobs:
         # cần keystore. Build trực tiếp qua Gradle plugin của Flutter.
         run: flutter build apk --release
 
+      - name: Build AAB (Gradle, release)
+        run: flutter build appbundle --release
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: subtrack-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: subtrack-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           retention-days: 30
