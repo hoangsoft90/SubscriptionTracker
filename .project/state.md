@@ -29,8 +29,8 @@ Phân bổ tests (chính):
 
 ## Todo mở (next steps)
 
-1. [ ] **Commit** toàn bộ code M0→nay — cần user duyệt (vùng loại trừ Ponytail:
-      tiền/billing trong diff). Repo hiện chưa có commit nào (`No commits yet`).
+1. [x] **Commit** toàn bộ code M0→nay — **đã push 2026-08-13** lên
+      `github.com/hoangsoft90/SubscriptionTracker` (commit `a746af6`, branch `main`).
 2. [ ] Manual device tests còn lại (đã ghi trong platform-store tasks):
       backup reinstall restore (2.6), IAP sandbox (3.5), privacy network on-device (5.2).
 3. [ ] Manual walkthrough M1 (task 7.3) — add <25s, dashboard totals khớp list.
@@ -41,6 +41,8 @@ Phân bổ tests (chính):
 6. [ ] Fix MEDIUM còn lại từ review (đã liệt kê, chưa làm): #8 monthlyByCurrency
       chưa dùng ở Home, #9 merge FK edge case, #10 interstitial preload hết hạn,
       #11 Money.parse VND "12.5" → 125 (behavior có chủ đích).
+7. [ ] (nếu publish store) Thêm signing config release thật vào
+      `android/app/build.gradle.kts` — hiện release dùng debug signing (APK CI để test nội bộ).
 
 ## Ghi chú phiên gần đây
 

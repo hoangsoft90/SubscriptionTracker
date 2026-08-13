@@ -47,3 +47,5 @@ Thumbs.db
 .env
 .env.*
 __MACOSX/
+dist-apk/
+*.zip

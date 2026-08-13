@@ -2,6 +2,14 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## GitHub Actions build APK (2026-08-13)
+
+- [2026-08-13] Xong: Push toàn bộ code SubTrack lên `github.com/hoangsoft90/SubscriptionTracker` (public, default branch `main`) — commit đầu tiên `a746af6` (289 files). Tạo workflow `.github/workflows/build-apk.yml` build **release APK bằng Gradle trực tiếp** (Flutter 3.44.9 stable + JDK 21 temurin qua `actions/setup-java`, `flutter build apk --release`, upload artifact `subtrack-release-apk`, retention 30 ngày) — **không dùng EAS, không cần token EAS**.
+- [2026-08-13] Fix CI-critical: `android/gradle.properties` trước đây hard-code `org.gradle.java.home=/Library/Java/...` (path macOS) → **fail trên runner Linux** của GH Actions. Bỏ hardcode, Gradle giờ chọn JDK qua `JAVA_HOME` (CI: setup-java; local: export trong `.project/ai-rules.md`).
+- [2026-08-13] Verify: run GH Actions `31661329510` **completed/success** (mọi step xanh: JDK 21, Flutter 3.44.9, pub get, Build APK, Upload artifact). APK tải về: `dist-apk/app-release.apk` 66.8MB (64M), valid zip, có `classes.dex` + `AndroidManifest.xml`. Lưu ý: release hiện ký bằng **debug signing config** (`android/app/build.gradle.kts`) — APK build để test nội bộ; publish Play Store cần signing config thật.
+- [2026-08-13] Tạo skill `.opencode/skills/build-apk-github/SKILL.md` (đã push cùng repo) — hướng dẫn lần sau AI build APK/AAB trên GH Actions: repo link, trigger push `main`/`workflow_dispatch`, poll run, tải artifact, cách thêm step build AAB. **Token KHÔNG hardcode trong skill** (repo public — GitHub tự revoke token lộ); token đọc từ `.env` (gitignored, key `GH_TOKEN`).
+- [2026-08-13] Lưu ý: `.env` tạo mới (gitignored) chứa `GH_TOKEN` — KHÔNG commit file này.
+
 ## Docs: refresh .project/ (2026-08-12)
 
 - [2026-08-12] Xong: Cập nhật `.project/` theo ai-rules (state.md sau mỗi task lớn):
