@@ -1,0 +1,375 @@
+{
+  "@@locale": "en",
+  "appName": "SubTrack",
+  "featureNew": "New",
+  "guidanceSkip": "Skip",
+  "guidanceNext": "Next",
+  "guidanceDone": "Done",
+  "guidanceStepCounter": "Step {current} of {total}",
+  "@guidanceStepCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "guidanceHomeCostTitle": "Your monthly cost at a glance",
+  "guidanceHomeCostBody": "This is everything you pay for subscriptions every month — including projected savings from ones you cancelled.",
+  "guidanceHomeCalendarTitle": "Every charge, on one calendar",
+  "guidanceHomeCalendarBody": "Tap View calendar to see exactly which day each recurring charge lands — and how much is due that day.",
+  "disabledFreeLimitTitle": "Free limit reached",
+  "disabledFreeLimitBody": "You've used all 10 free slots. Cancel or archive a subscription, or upgrade to Pro to keep adding.",
+  "disabledFreeLimitUnlock": "Unlock Pro",
+  "onboardingPrivacyTitle": "Private by design",
+  "onboardingPrivacyBody": "Subscription data is stored locally on your device. The app does not require a backend or account.",
+  "onboardingContinue": "Continue",
+  "onboardingCurrencyTitle": "Choose your primary currency",
+  "onboardingCurrencyBody": "You can change this anytime in Settings. Existing amounts keep their own currency.",
+  "onboardingPresetsTitle": "Pick your subscriptions",
+  "onboardingPresetsBody": "Start fast with presets — prices and billing cycles are never pre-filled.",
+  "onboardingSkip": "Skip, start empty",
+  "onboardingDone": "Start tracking",
+  "onboardingPresetsSelected": "{count} selected — they will pre-fill your add form",
+  "@onboardingPresetsSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tabHome": "Home",
+  "tabSubscriptions": "Subscriptions",
+  "tabMore": "More",
+  "dashboardMonthly": "Monthly",
+  "dashboardYearly": "Yearly",
+  "dashboardFiveYear": "5-Year Cost at Current Prices",
+  "dashboardUpcoming": "Upcoming (7 days)",
+  "dashboardToday": "Today",
+  "todayClear": "You're clear. No renewals or trials need attention today.",
+  "todayNothingDue": "Nothing due today",
+  "todayToday": "today",
+  "todayNext": "Next: {name} — in {days} day(s) ({date})",
+  "@todayNext": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "trialEndingToday": "Trial ending today — {name}",
+  "@trialEndingToday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trialEndingIn": "Trial ending in {days} day(s) — {name}",
+  "@trialEndingIn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "trialAfterPrice": "{name} — {price} after trial",
+  "@trialAfterPrice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "needsAttention": "Needs attention ({count})",
+  "@needsAttention": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewAll": "Review all ({count})",
+  "@reviewAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "queueTrialEnding": "Trial ends in {days} day(s)",
+  "@queueTrialEnding": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "queueRenewalDue": "Renews on day {day}",
+  "@queueRenewalDue": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "queuePriceChanged": "Price changed — review it",
+  "queueStale": "Haven't reviewed {name} in a while. Still worth it?",
+  "@queueStale": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewTitle": "Review {name}",
+  "@reviewTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewQuestion": "Do you still need this subscription?",
+  "reviewLater": "Later",
+  "reviewCancelAction": "Cancel it",
+  "reviewKeep": "Keep",
+  "savingsProjectedLabel": "Projected monthly savings",
+  "savingsRealizedLabel": "Realized this month",
+  "savingsEstimatedNote": "Estimated — from cancelled / pending-cancellation subscriptions",
+  "calendarMonthCharges": "recurring charges",
+  "calendarView": "View calendar",
+  "calendarTitle": "Money calendar",
+  "calendarPrevMonth": "Previous month",
+  "calendarNextMonth": "Next month",
+  "calendarDayEmpty": "No charges on this day",
+  "calendarOneRenewal": "1 renewal",
+  "calendarRenewals": "{count} renewals",
+  "@calendarRenewals": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarTotal": "Total",
+  "filterPendingCancellation": "Pending cancellation",
+  "priceChangedTitle": "Price changed",
+  "priceChangedSummary": "{delta} / month · {percent}%",
+  "@priceChangedSummary": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "priceChangedYearly": "New yearly cost: {newYearly} (was {oldYearly})",
+  "priceChangedNewYearly": "New yearly cost: {newYearly}",
+  "@priceChangedYearly": {
+    "placeholders": {
+      "newYearly": {
+        "type": "String"
+      },
+      "oldYearly": {
+        "type": "String"
+      }
+    }
+  },
+  "priceChangedSave": "Save new price",
+  "defaultLabel": "Default",
+  "@dueLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dueLabel": "Due {date}",
+  "dashboardUpcomingEmpty": "Nothing due in the next 7 days",
+  "dashboardTopThree": "Top 3 most expensive",
+  "dashboardEmptyTitle": "Nothing tracked yet",
+  "dashboardEmptyBody": "Add your first subscription to see your recurring costs — privately, on your device.",
+  "dashboardEmptyCta": "Add subscription",
+  "trialBadge": "Trial",
+  "subscriptionsTitle": "Subscriptions",
+  "subscriptionsAdd": "Add subscription",
+  "subscriptionsSearchHint": "Search subscriptions",
+  "subscriptionsEmptyTitle": "No subscriptions yet",
+  "subscriptionsEmptyBody": "Tap + to add your first one — it takes under 25 seconds.",
+  "subscriptionsNoResults": "No matches",
+  "sortName": "Name",
+  "sortAmount": "Amount",
+  "sortNextBilling": "Next billing",
+  "filterAll": "All",
+  "filterActive": "Active",
+  "filterCancelled": "Cancelled",
+  "filterArchived": "Archived",
+  "addTitle": "Add subscription",
+  "editTitle": "Edit subscription",
+  "fieldName": "Name",
+  "fieldAmount": "Amount",
+  "fieldCurrency": "Currency",
+  "fieldCycle": "Billing cycle",
+  "fieldStartDate": "Start date",
+  "fieldNextBilling": "Next billing date",
+  "fieldTrialToggle": "Free trial?",
+  "fieldTrialEnd": "Trial end date",
+  "fieldTrialSuggestion": "Suggested, please verify",
+  "fieldCategory": "Category",
+  "fieldNotes": "Notes",
+  "fieldCancellationUrl": "Cancellation URL (optional)",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "validationRequired": "Required",
+  "validationInvalidAmount": "Enter a valid amount",
+  "validationInvalidUrl": "Enter a valid URL (https://…)",
+  "cycleWeekly": "Weekly",
+  "cycleMonthly": "Monthly",
+  "cycleQuarterly": "Quarterly",
+  "cycleYearly": "Yearly",
+  "cycleCustom": "Custom",
+  "customIntervalDays": "Interval (days)",
+  "detailNextBilling": "Next billing",
+  "detailTrialEnd": "Trial ends",
+  "detailStatus": "Status",
+  "detailCancellationUrl": "Cancellation link",
+  "actionCancel": "Cancel subscription",
+  "actionArchive": "Archive",
+  "actionActivate": "Activate",
+  "actionUnarchive": "Unarchive",
+  "deleteConfirmTitle": "Delete subscription?",
+  "deleteConfirmBody": "This removes the subscription permanently.",
+  "detailNotFound": "Not found",
+  "tooltipEdit": "Edit",
+  "tooltipSort": "Sort",
+  "nextBillingLabel": "Next: {date}",
+  "@nextBillingLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "categoriesTitle": "Categories",
+  "categoriesAdd": "New category",
+  "editCategory": "Edit category",
+  "categoryName": "Category name",
+  "categoryDeleteDefaultBlocked": "Default categories cannot be deleted",
+  "uncategorized": "Uncategorized",
+  "moreTitle": "More",
+  "settingsTitle": "Settings",
+  "settingsCurrency": "Primary currency",
+  "settingsCurrencyHint": "Changing it regroups totals; existing amounts keep their own currency.",
+  "settingsTheme": "Appearance",
+  "settingsThemeSystem": "System",
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "settingsCategories": "Categories",
+  "settingsAbout": "About",
+  "settingsLanguage": "Language",
+  "languageSystem": "System",
+  "languageEnglish": "English",
+  "languageVietnamese": "Tiếng Việt",
+  "aboutPrivacyLine": "No in-app analytics or tracking SDK. Non-personalized ads are served by Google AdMob on the free plan — upgrade to Pro to remove them. Subscription data is stored locally on your device.",
+  "presetPackGlobal": "Global",
+  "presetPackVn": "VN",
+  "freeSlotsBanner": "You have {count} free slots left",
+  "@freeSlotsBanner": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallTitle": "SubTrack Pro",
+  "paywallBody": "Remove the 10-subscription free limit and all ads with a single one-time purchase. No recurring billing, no account.",
+  "paywallBuy": "Unlock Pro",
+  "paywallRestore": "Restore Purchase",
+  "paywallPurchased": "You're Pro — thanks for supporting private software!",
+  "paywallSlotsUsed": "{used} of 10 slots used",
+  "@paywallSlotsUsed": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      }
+    }
+  },
+  "backupTitle": "Backup & Transfer",
+  "backupExport": "Export backup",
+  "backupExportBody": "Share a JSON backup file with your subscriptions, categories and settings — no cloud.",
+  "backupImport": "Import backup",
+  "backupImportBody": "Restore data from a backup file on this device.",
+  "backupPreview": "Found {subscriptions} subscriptions, {categories} categories",
+  "@backupPreview": {
+    "placeholders": {
+      "subscriptions": {
+        "type": "int"
+      },
+      "categories": {
+        "type": "int"
+      }
+    }
+  },
+  "backupSettingsSummary": "Settings: primary currency {currency}",
+  "@backupSettingsSummary": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "backupMerge": "Merge",
+  "backupMergeBody": "Keep existing data; items with new IDs are added. Nothing is removed.",
+  "backupReplace": "Replace All",
+  "backupReplaceConfirmTitle": "Replace all data?",
+  "backupReplaceConfirmBody": "Existing categories, subscriptions and settings will be removed and replaced by the backup.",
+  "backupExported": "Backup exported",
+  "backupImported": "Backup imported",
+  "backupErrorInvalidFile": "This file is not a SubTrack backup.",
+  "backupErrorFutureSchema": "This backup was made by a newer version of SubTrack and cannot be imported.",
+  "presetNetflix": "Netflix",
+  "presetSpotify": "Spotify",
+  "presetYoutubePremium": "YouTube Premium",
+  "presetAppleMusic": "Apple Music",
+  "presetIcloudPlus": "iCloud+",
+  "presetGoogleOne": "Google One",
+  "presetAmazonPrime": "Amazon Prime",
+  "presetDisneyPlus": "Disney+",
+  "presetChatgptPlus": "ChatGPT Plus",
+  "presetAdobeCc": "Adobe Creative Cloud",
+  "presetNotion": "Notion",
+  "presetGithubPro": "GitHub Pro",
+  "presetFptPlay": "FPT Play",
+  "presetGalaxyPlay": "Galaxy Play",
+  "presetVieon": "VieON",
+  "presetZingMp3": "Zing MP3",
+  "presetNhaccuatui": "NhacCuaTui",
+  "presetKg": "K+",
+  "errorTitle": "Page not found",
+  "errorBody": "\"{path}\" is not a valid page in SubTrack.",
+  "@errorBody": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  }
+}

@@ -1,0 +1,375 @@
+{
+  "@@locale": "vi",
+  "appName": "SubTrack",
+  "featureNew": "Mới",
+  "guidanceSkip": "Bỏ qua",
+  "guidanceNext": "Tiếp theo",
+  "guidanceDone": "Xong",
+  "guidanceStepCounter": "Bước {current} trên {total}",
+  "@guidanceStepCounter": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "guidanceHomeCostTitle": "Chi phí hàng tháng trong một cái nhìn",
+  "guidanceHomeCostBody": "Đây là tổng chi phí đăng ký của bạn mỗi tháng — bao gồm cả khoản tiết kiệm dự kiến từ những đăng ký đã hủy.",
+  "guidanceHomeCalendarTitle": "Mọi khoản phí, trên một lịch",
+  "guidanceHomeCalendarBody": "Chạm Xem lịch để biết chính xác ngày nào mỗi khoản phí định kỳ đến hạn — và số tiền phải trả ngày đó.",
+  "disabledFreeLimitTitle": "Đã đạt giới hạn miễn phí",
+  "disabledFreeLimitBody": "Bạn đã dùng hết 10 chỗ miễn phí. Hãy hủy hoặc lưu trữ một đăng ký, hoặc nâng cấp Pro để tiếp tục thêm.",
+  "disabledFreeLimitUnlock": "Mở khóa Pro",
+  "onboardingPrivacyTitle": "Riêng tư bởi thiết kế",
+  "onboardingPrivacyBody": "Dữ liệu đăng ký được lưu trữ cục bộ trên thiết bị của bạn. Ứng dụng không cần máy chủ hoặc tài khoản.",
+  "onboardingContinue": "Tiếp tục",
+  "onboardingCurrencyTitle": "Chọn đơn vị tiền tệ chính",
+  "onboardingCurrencyBody": "Bạn có thể đổi bất cứ lúc nào trong Cài đặt. Số tiền hiện có giữ nguyên đơn vị tiền tệ của chúng.",
+  "onboardingPresetsTitle": "Chọn các đăng ký của bạn",
+  "onboardingPresetsBody": "Bắt đầu nhanh với gợi ý — giá và chu kỳ thanh toán không bao giờ được điền sẵn.",
+  "onboardingSkip": "Bỏ qua, bắt đầu trống",
+  "onboardingDone": "Bắt đầu theo dõi",
+  "onboardingPresetsSelected": "Đã chọn {count} — sẽ điền sẵn vào form thêm của bạn",
+  "@onboardingPresetsSelected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tabHome": "Trang chủ",
+  "tabSubscriptions": "Đăng ký",
+  "tabMore": "Thêm",
+  "dashboardMonthly": "Hàng tháng",
+  "dashboardYearly": "Hàng năm",
+  "dashboardFiveYear": "Chi phí 5 năm theo giá hiện tại",
+  "dashboardUpcoming": "Sắp tới (7 ngày)",
+  "dashboardToday": "Hôm nay",
+  "todayClear": "Bạn không có gì cần lưu ý hôm nay. Không có khoản gia hạn hay dùng thử nào.",
+  "todayNothingDue": "Không có khoản nào đến hạn hôm nay",
+  "todayToday": "hôm nay",
+  "todayNext": "Tiếp theo: {name} — trong {days} ngày ({date})",
+  "@todayNext": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "days": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "trialEndingToday": "Dùng thử kết thúc hôm nay — {name}",
+  "@trialEndingToday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trialEndingIn": "Dùng thử kết thúc trong {days} ngày — {name}",
+  "@trialEndingIn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "trialAfterPrice": "{name} — {price} sau khi dùng thử",
+  "@trialAfterPrice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "needsAttention": "Cần lưu ý ({count})",
+  "@needsAttention": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewAll": "Xem tất cả ({count})",
+  "@reviewAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "queueTrialEnding": "Dùng thử kết thúc trong {days} ngày",
+  "@queueTrialEnding": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "queueRenewalDue": "Gia hạn vào ngày {day}",
+  "@queueRenewalDue": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "queuePriceChanged": "Giá đã thay đổi — hãy xem lại",
+  "queueStale": "Đã lâu chưa xem lại {name}. Bạn vẫn cần nó chứ?",
+  "@queueStale": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewTitle": "Xem lại {name}",
+  "@reviewTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewQuestion": "Bạn vẫn cần đăng ký này chứ?",
+  "reviewLater": "Để sau",
+  "reviewCancelAction": "Hủy nó",
+  "reviewKeep": "Giữ lại",
+  "savingsProjectedLabel": "Tiết kiệm dự kiến hàng tháng",
+  "savingsRealizedLabel": "Đã tiết kiệm tháng này",
+  "savingsEstimatedNote": "Ước tính — từ các đăng ký đã hủy / đang chờ hủy",
+  "calendarMonthCharges": "khoản phí định kỳ",
+  "calendarView": "Xem lịch",
+  "calendarTitle": "Lịch chi tiêu",
+  "calendarPrevMonth": "Tháng trước",
+  "calendarNextMonth": "Tháng sau",
+  "calendarDayEmpty": "Không có khoản phí nào vào ngày này",
+  "calendarOneRenewal": "1 khoản gia hạn",
+  "calendarRenewals": "{count} khoản gia hạn",
+  "@calendarRenewals": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarTotal": "Tổng",
+  "filterPendingCancellation": "Đang chờ hủy",
+  "priceChangedTitle": "Giá đã thay đổi",
+  "priceChangedSummary": "{delta} / tháng · {percent}%",
+  "@priceChangedSummary": {
+    "placeholders": {
+      "delta": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "priceChangedYearly": "Chi phí năm mới: {newYearly} (trước: {oldYearly})",
+  "priceChangedNewYearly": "Chi phí năm mới: {newYearly}",
+  "@priceChangedYearly": {
+    "placeholders": {
+      "newYearly": {
+        "type": "String"
+      },
+      "oldYearly": {
+        "type": "String"
+      }
+    }
+  },
+  "priceChangedSave": "Lưu giá mới",
+  "defaultLabel": "Mặc định",
+  "@dueLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dueLabel": "Đến hạn: {date}",
+  "dashboardUpcomingEmpty": "Không có khoản nào đến hạn trong 7 ngày tới",
+  "dashboardTopThree": "3 đắt nhất",
+  "dashboardEmptyTitle": "Chưa có gì để theo dõi",
+  "dashboardEmptyBody": "Thêm đăng ký đầu tiên để xem chi phí định kỳ của bạn — riêng tư, ngay trên thiết bị.",
+  "dashboardEmptyCta": "Thêm đăng ký",
+  "trialBadge": "Dùng thử",
+  "subscriptionsTitle": "Đăng ký",
+  "subscriptionsAdd": "Thêm đăng ký",
+  "subscriptionsSearchHint": "Tìm kiếm đăng ký",
+  "subscriptionsEmptyTitle": "Chưa có đăng ký nào",
+  "subscriptionsEmptyBody": "Chạm + để thêm đăng ký đầu tiên — chỉ mất dưới 25 giây.",
+  "subscriptionsNoResults": "Không có kết quả",
+  "sortName": "Tên",
+  "sortAmount": "Số tiền",
+  "sortNextBilling": "Kỳ thanh toán tới",
+  "filterAll": "Tất cả",
+  "filterActive": "Hoạt động",
+  "filterCancelled": "Đã hủy",
+  "filterArchived": "Đã lưu trữ",
+  "addTitle": "Thêm đăng ký",
+  "editTitle": "Sửa đăng ký",
+  "fieldName": "Tên",
+  "fieldAmount": "Số tiền",
+  "fieldCurrency": "Tiền tệ",
+  "fieldCycle": "Chu kỳ thanh toán",
+  "fieldStartDate": "Ngày bắt đầu",
+  "fieldNextBilling": "Ngày thanh toán tới",
+  "fieldTrialToggle": "Dùng thử miễn phí?",
+  "fieldTrialEnd": "Ngày kết thúc dùng thử",
+  "fieldTrialSuggestion": "Đề xuất, vui lòng kiểm tra lại",
+  "fieldCategory": "Danh mục",
+  "fieldNotes": "Ghi chú",
+  "fieldCancellationUrl": "Đường dẫn hủy (không bắt buộc)",
+  "save": "Lưu",
+  "cancel": "Hủy",
+  "delete": "Xóa",
+  "validationRequired": "Bắt buộc",
+  "validationInvalidAmount": "Nhập số tiền hợp lệ",
+  "validationInvalidUrl": "Nhập URL hợp lệ (https://…)",
+  "cycleWeekly": "Hàng tuần",
+  "cycleMonthly": "Hàng tháng",
+  "cycleQuarterly": "Hàng quý",
+  "cycleYearly": "Hàng năm",
+  "cycleCustom": "Tùy chỉnh",
+  "customIntervalDays": "Khoảng cách (ngày)",
+  "detailNextBilling": "Thanh toán tới",
+  "detailTrialEnd": "Kết thúc dùng thử",
+  "detailStatus": "Trạng thái",
+  "detailCancellationUrl": "Đường dẫn hủy",
+  "actionCancel": "Hủy đăng ký",
+  "actionArchive": "Lưu trữ",
+  "actionActivate": "Kích hoạt",
+  "actionUnarchive": "Bỏ lưu trữ",
+  "deleteConfirmTitle": "Xóa đăng ký?",
+  "deleteConfirmBody": "Thao tác này sẽ xóa vĩnh viễn đăng ký.",
+  "detailNotFound": "Không tìm thấy",
+  "tooltipEdit": "Chỉnh sửa",
+  "tooltipSort": "Sắp xếp",
+  "nextBillingLabel": "Tới: {date}",
+  "@nextBillingLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "categoriesTitle": "Danh mục",
+  "categoriesAdd": "Danh mục mới",
+  "editCategory": "Sửa danh mục",
+  "categoryName": "Tên danh mục",
+  "categoryDeleteDefaultBlocked": "Không thể xóa danh mục mặc định",
+  "uncategorized": "Chưa phân loại",
+  "moreTitle": "Thêm",
+  "settingsTitle": "Cài đặt",
+  "settingsCurrency": "Tiền tệ chính",
+  "settingsCurrencyHint": "Đổi sẽ nhóm lại tổng; số tiền hiện có giữ nguyên tiền tệ.",
+  "settingsTheme": "Giao diện",
+  "settingsThemeSystem": "Hệ thống",
+  "settingsThemeLight": "Sáng",
+  "settingsThemeDark": "Tối",
+  "settingsCategories": "Danh mục",
+  "settingsAbout": "Giới thiệu",
+  "settingsLanguage": "Ngôn ngữ",
+  "languageSystem": "Theo hệ thống",
+  "languageEnglish": "English",
+  "languageVietnamese": "Tiếng Việt",
+  "aboutPrivacyLine": "Không có SDK phân tích hoặc theo dõi trong ứng dụng. Quảng cáo không cá nhân hóa được phân phối bởi Google AdMob ở gói miễn phí — nâng cấp Pro để tắt. Dữ liệu đăng ký được lưu trữ cục bộ trên thiết bị của bạn.",
+  "presetPackGlobal": "Toàn cầu",
+  "presetPackVn": "VN",
+  "freeSlotsBanner": "Bạn còn {count} chỗ trống miễn phí",
+  "@freeSlotsBanner": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallTitle": "SubTrack Pro",
+  "paywallBody": "Xóa giới hạn 10 đăng ký miễn phí và toàn bộ quảng cáo chỉ với một lần mua duy nhất. Không phí định kỳ, không tài khoản.",
+  "paywallBuy": "Mở khóa Pro",
+  "paywallRestore": "Khôi phục giao dịch mua",
+  "paywallPurchased": "Bạn đã là Pro — cảm ơn đã ủng hộ phần mềm riêng tư!",
+  "paywallSlotsUsed": "{used} trên 10 chỗ đã dùng",
+  "@paywallSlotsUsed": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      }
+    }
+  },
+  "backupTitle": "Sao lưu & chuyển",
+  "backupExport": "Xuất sao lưu",
+  "backupExportBody": "Chia sẻ tệp JSON sao lưu gồm đăng ký, danh mục và cài đặt — không cần đám mây.",
+  "backupImport": "Nhập sao lưu",
+  "backupImportBody": "Khôi phục dữ liệu từ tệp sao lưu trên thiết bị này.",
+  "backupPreview": "Tìm thấy {subscriptions} đăng ký, {categories} danh mục",
+  "@backupPreview": {
+    "placeholders": {
+      "subscriptions": {
+        "type": "int"
+      },
+      "categories": {
+        "type": "int"
+      }
+    }
+  },
+  "backupSettingsSummary": "Cài đặt: tiền tệ chính {currency}",
+  "@backupSettingsSummary": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "backupMerge": "Gộp",
+  "backupMergeBody": "Giữ dữ liệu hiện có; các mục có ID mới được thêm vào. Không xóa gì.",
+  "backupReplace": "Thay thế tất cả",
+  "backupReplaceConfirmTitle": "Thay thế toàn bộ dữ liệu?",
+  "backupReplaceConfirmBody": "Danh mục, đăng ký và cài đặt hiện có sẽ bị xóa và thay bằng dữ liệu sao lưu.",
+  "backupExported": "Đã xuất sao lưu",
+  "backupImported": "Đã nhập sao lưu",
+  "backupErrorInvalidFile": "Tệp này không phải sao lưu SubTrack.",
+  "backupErrorFutureSchema": "Tệp sao lưu này được tạo bởi phiên bản SubTrack mới hơn và không thể nhập.",
+  "presetNetflix": "Netflix",
+  "presetSpotify": "Spotify",
+  "presetYoutubePremium": "YouTube Premium",
+  "presetAppleMusic": "Apple Music",
+  "presetIcloudPlus": "iCloud+",
+  "presetGoogleOne": "Google One",
+  "presetAmazonPrime": "Amazon Prime",
+  "presetDisneyPlus": "Disney+",
+  "presetChatgptPlus": "ChatGPT Plus",
+  "presetAdobeCc": "Adobe Creative Cloud",
+  "presetNotion": "Notion",
+  "presetGithubPro": "GitHub Pro",
+  "presetFptPlay": "FPT Play",
+  "presetGalaxyPlay": "Galaxy Play",
+  "presetVieon": "VieON",
+  "presetZingMp3": "Zing MP3",
+  "presetNhaccuatui": "NhacCuaTui",
+  "presetKg": "K+",
+  "errorTitle": "Không tìm thấy trang",
+  "errorBody": "\"{path}\" không phải là một trang hợp lệ trong SubTrack.",
+  "@errorBody": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  }
+}

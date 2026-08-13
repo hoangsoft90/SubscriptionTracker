@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "304793624445",
+    "project_id": "subscriptiontracker-94c6d",
+    "storage_bucket": "subscriptiontracker-94c6d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:304793624445:android:7acb2520a0a966ddb9b614",
+        "android_client_info": {
+          "package_name": "com.subguard.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDL6DrwHUG8IcgrNMDDC-CwkO15WrfNwfE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

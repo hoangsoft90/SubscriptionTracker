@@ -1,0 +1,52 @@
+name: Build APK
+
+# Build release APK của SubTrack bằng Gradle trực tiếp trên GitHub Actions
+# (không dùng EAS, không cần token EAS). Chạy trên push main + manual trigger.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    name: Build release APK (Gradle)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        # AGP 9 yêu cầu JDK 17+; JDK 21 là chuẩn Flutter 3.44.
+        # JAVA_HOME được set ở đây -> Gradle dùng JDK này (gradle.properties
+        # không hard-code đường dẫn máy).
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.9'
+          channel: stable
+          cache: true
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build APK (Gradle, release)
+        # Release build dùng debug signing config (build.gradle.kts) nên không
+        # cần keystore. Build trực tiếp qua Gradle plugin của Flutter.
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: subtrack-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 30
