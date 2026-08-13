@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/calendar/date_utils.dart';
 import '../../../core/providers.dart';
+import '../../dashboard/application/dashboard_controller.dart';
 import '../data/subscription_repository.dart';
 import '../domain/price_history.dart';
 import '../domain/subscription.dart';
@@ -97,6 +98,12 @@ class SubscriptionListController extends AsyncNotifier<SubscriptionListState> {
     final repo = await ref.read(subscriptionRepositoryProvider.future);
     final all = await repo.getAll();
     state = AsyncData(state.value!.copyWith(subscriptions: all));
+    // The dashboard (Home tab) derives from the same subscriptions but is a
+    // separate provider — invalidate it so the Home cards reflect adds,
+    // edits, deletes and status changes immediately (fix: previously only the
+    // list tab refreshed; Home kept its stale empty state after the first
+    // subscription was added).
+    ref.invalidate(dashboardControllerProvider);
   }
 
   void setQuery(String query) {

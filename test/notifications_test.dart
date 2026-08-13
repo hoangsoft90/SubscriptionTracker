@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:subtrack/core/notifications/coordinator.dart';
 import 'package:subtrack/core/notifications/ids.dart';
+import 'package:subtrack/core/notifications/notification_platform.dart';
 import 'package:subtrack/core/notifications/notification_scheduler.dart';
 import 'package:subtrack/core/notifications/permission.dart';
 import 'package:subtrack/features/subscriptions/domain/billing_cycle.dart';
@@ -319,6 +320,44 @@ void main() {
       // A later call must NOT re-prompt.
       await service.requestIfNeeded();
       expect(platform.permissionRequested, isTrue);
+    });
+
+    test('status() reports the OS permission state without prompting',
+        () async {
+      final platform = FakeNotificationPlatform();
+      final service =
+          NotificationPermissionService(platform, FakeSettingsRepository());
+
+      platform.status = NotificationPermissionStatus.disabled;
+      expect(await service.status(), NotificationPermissionStatus.disabled);
+      // Reading status never triggers the OS prompt.
+      expect(platform.permissionRequested, isFalse);
+
+      platform.status = NotificationPermissionStatus.enabled;
+      expect(await service.status(), NotificationPermissionStatus.enabled);
+      expect(platform.permissionRequested, isFalse);
+    });
+
+    test('enableFromSettings prompts on first use, opens settings after',
+        () async {
+      final platform = FakeNotificationPlatform();
+      final settings = FakeSettingsRepository();
+      final service = NotificationPermissionService(platform, settings);
+
+      // Never asked before → show the OS prompt.
+      var prompted = await service.enableFromSettings();
+      expect(prompted, isTrue);
+      expect(platform.permissionRequested, isTrue);
+      expect(platform.settingsOpened, isFalse);
+
+      // Asked before (user denied) → OS usually stops re-prompting; open the
+      // system notification settings screen instead.
+      platform.permissionGranted = false;
+      platform.status = NotificationPermissionStatus.disabled;
+      prompted = await service.enableFromSettings();
+      expect(prompted, isFalse);
+      expect(platform.settingsOpened, isTrue);
+      expect(platform.permissionRequested, isTrue); // no second prompt
     });
   });
 

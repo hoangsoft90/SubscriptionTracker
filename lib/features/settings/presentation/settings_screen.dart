@@ -3,15 +3,102 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/l10n.dart';
+import '../../../core/notifications/notification_platform.dart';
+import '../../../core/providers.dart';
+import '../../../l10n/app_localizations.dart';
 import '../application/settings_controller.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   static const _currencies = ['USD', 'EUR', 'GBP', 'VND', 'JPY', 'KRW'];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  /// OS notification permission state, refreshed on entry and after each
+  /// enable attempt (the OS prompt / settings screen changes it externally).
+  NotificationPermissionStatus? _notifStatus;
+  bool _notifBusy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshNotifStatus();
+  }
+
+  Future<void> _refreshNotifStatus() async {
+    final status =
+        await ref.read(notificationPermissionServiceProvider).status();
+    if (mounted) setState(() => _notifStatus = status);
+  }
+
+  Future<void> _enableNotifications() async {
+    setState(() => _notifBusy = true);
+    try {
+      // Requests the OS prompt (first time) or opens the OS notification
+      // settings screen (after a previous ask — Android stops showing the
+      // prompt after denial). Then refresh the shown status.
+      await ref.read(notificationPermissionServiceProvider).enableFromSettings();
+      await _refreshNotifStatus();
+    } finally {
+      if (mounted) setState(() => _notifBusy = false);
+    }
+  }
+
+  Widget _notificationsSection(AppLocalizations l10n) {
+    final enabled = _notifStatus == NotificationPermissionStatus.enabled;
+    return Column(
+      children: [
+        const Divider(height: 1),
+        ListTile(
+          leading: const Icon(Icons.notifications_outlined),
+          title: Text(l10n.settingsNotificationsTitle),
+          subtitle: Text(l10n.settingsNotificationsHint),
+          trailing: _notifBusy
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(
+                  _notifStatus == null
+                      ? ''
+                      : enabled
+                          ? l10n.settingsNotificationsEnabled
+                          : l10n.settingsNotificationsDisabled,
+                  style: TextStyle(
+                    color: enabled
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+        ),
+        if (_notifStatus != null && !enabled)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton.tonalIcon(
+                onPressed: _notifBusy ? null : _enableNotifications,
+                icon: const Icon(Icons.notifications_active_outlined, size: 18),
+                label: Text(
+                  _notifStatus == null
+                      ? ''
+                      : l10n.settingsNotificationsEnable,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final settings = ref.watch(settingsControllerProvider).value;
 
@@ -33,7 +120,7 @@ class SettingsScreen extends ConsumerWidget {
                           .read(settingsControllerProvider.notifier)
                           .setPrimaryCurrency(c),
                       itemBuilder: (context) => [
-                        for (final c in _currencies)
+                        for (final c in SettingsScreen._currencies)
                           PopupMenuItem(
                             value: c,
                             child: Row(
@@ -145,6 +232,7 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
+                  _notificationsSection(l10n),
                   const Divider(height: 1),
                   ListTile(
                     leading: const Icon(Icons.category_outlined),

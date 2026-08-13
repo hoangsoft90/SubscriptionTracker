@@ -197,6 +197,30 @@ void main() {
     expect(dashboard.savings.preCancellationMonthly['USD'], 6000);
   });
 
+  test('dashboard recomputes after the first subscription is added '
+      '(fix: Home kept stale empty state)', () async {
+    final container = harness.container();
+    addTearDown(container.dispose);
+
+    // Home renders the dashboard — read it BEFORE anything is added.
+    var dashboard = await container.read(dashboardControllerProvider.future);
+    expect(dashboard.active, isEmpty);
+
+    // User adds their first subscription from the Subscriptions tab.
+    final notifier =
+        container.read(subscriptionListControllerProvider.notifier);
+    await notifier.add(sub(id: 'first', name: 'Netflix', amount: 1499));
+
+    // Home tab must now show the new subscription (previously it stayed
+    // empty because the dashboard provider was never invalidated).
+    dashboard = await container.read(dashboardControllerProvider.future);
+    expect(dashboard.active.map((s) => s.id), contains('first'));
+    expect(
+      container.read(dashboardControllerProvider.notifier).monthlyTotal('USD'),
+      1499,
+    );
+  });
+
   test('month total aggregates current-month charges', () async {
     final container = harness.container();
     addTearDown(container.dispose);

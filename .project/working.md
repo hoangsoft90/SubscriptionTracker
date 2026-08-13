@@ -2,6 +2,17 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## Home tab stale fix + Notification permission UI (2026-08-13)
+
+- [2026-08-13] Xong bug: **Home tab trống sau khi thêm subscription đầu tiên** — `SubscriptionListController` chỉ reload state của chính nó, KHÔNG invalidate `dashboardControllerProvider` → Home tab giữ state cũ (trống). Fix: `reload()` giờ gọi `ref.invalidate(dashboardControllerProvider)` sau mọi mutation (add/edit/delete/setStatus/markReviewed) → Home cập nhật ngay. Regression test trong `dashboard_controller_test.dart` (dashboard rỗng → add → active chứa sub mới + monthlyTotal đúng).
+- [2026-08-13] Xong: **Notification permission UI trong Settings** (trước đây không có nút bật thông báo):
+  - `NotificationPlatform` thêm `permissionStatus()` (Android `areNotificationsEnabled` / iOS `checkPermissions` — v22.3.0 không có `getNotificationSettings` nên dùng `NotificationsEnabledOptions.isEnabled`) + `openNotificationSettings()` qua package `app_settings ^8.0.3` (mở OS app-notification settings).
+  - `NotificationPermissionService` thêm `status()` (không prompt) + `enableFromSettings()` (lần đầu → prompt OS; đã hỏi rồi → mở OS settings vì Android ngừng prompt sau denial).
+  - Settings screen giờ hiển thị section Notifications: title + hint (reminders cục bộ) + trạng thái Bật/Tắt (live từ OS) + nút "Bật thông báo" (FilledButton.tonal) khi đang tắt; refresh status sau mỗi lần enable; busy spinner khi xử lý.
+  - L10n keys mới `settingsNotifications*` EN + VI, regenerate qua `flutter gen-l10n`.
+- [2026-08-13] Test: `notifications_test.dart` +2 (status không prompt, enableFromSettings prompt lần đầu → mở settings lần sau), `dashboard_controller_test.dart` +1 regression Home stale, `settings_notifications_test.dart` mới 3 widget tests (status hiển thị, disabled → enable mở settings, never-asked → prompt). Verify: `flutter analyze` 0 issues; `flutter test` **222/222 pass**.
+- [2026-08-13] Trả lời câu hỏi user: (1) notification khi đến hạn — **có**, scheduler cục bộ tự động (billing: ngày đến hạn 09:00 + trial: 2 ngày trước + đúng ngày, tái lập mỗi lần mở app/timezone đổi); âm thanh — **có** qua `Importance.defaultImportance`/`DarwinNotificationDetails` (sound mặc định OS, không tùy chỉnh âm riêng — channel dùng sound mặc định). (2) nút permission — đã thêm trong Settings (xem trên).
+
 ## Privacy policy + GitHub Pages (2026-08-13)
 
 - [2026-08-13] Xong: Tạo privacy policy song ngữ EN/VI cho SubTrack — `docs/privacy-policy.md` (source, khớp nội dung khóa trong `docs/privacy-labels.md`): local-first (dữ liệu lưu trên thiết bị), không backend/tài khoản/analytics SDK, AdMob non-personalized (free tier, Pro gỡ), IAP qua store, notifications cục bộ, permissions, xóa dữ liệu, contact.

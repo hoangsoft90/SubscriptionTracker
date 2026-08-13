@@ -1,8 +1,21 @@
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
+
+/// Permission state of the OS notification service.
+enum NotificationPermissionStatus {
+  /// The OS reports notifications are enabled.
+  enabled,
+
+  /// Disabled at the OS level (or denied after a previous request).
+  disabled,
+
+  /// The platform cannot determine the state (e.g. web, unknown OS).
+  unknown,
+}
 
 /// Thin boundary over the OS local-notification service.
 ///
@@ -15,6 +28,13 @@ abstract class NotificationPlatform {
   /// Requests notification permission (Android 13+ / iOS). Returns whether
   /// notifications are allowed.
   Future<bool> requestPermission();
+
+  /// Current OS-level notification permission state (without prompting).
+  Future<NotificationPermissionStatus> permissionStatus();
+
+  /// Opens the OS notification settings screen for this app (Android
+  /// app-notification settings / iOS app settings). No-op where unsupported.
+  Future<void> openNotificationSettings();
 
   /// Schedules a local notification to fire at [when] (local wall-clock time).
   Future<void> schedule({
@@ -81,6 +101,38 @@ class LocalNotificationPlatform implements NotificationPlatform {
           true;
     }
     return true;
+  }
+
+  @override
+  Future<NotificationPermissionStatus> permissionStatus() async {
+    await initialize();
+    if (kIsWeb) return NotificationPermissionStatus.unknown;
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      final android = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      final enabled = await android?.areNotificationsEnabled();
+      return enabled == true
+          ? NotificationPermissionStatus.enabled
+          : NotificationPermissionStatus.disabled;
+    }
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      final ios = _plugin.resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>();
+      final options = await ios?.checkPermissions();
+      final enabled = options?.isEnabled ?? false;
+      return enabled
+          ? NotificationPermissionStatus.enabled
+          : NotificationPermissionStatus.disabled;
+    }
+    return NotificationPermissionStatus.unknown;
+  }
+
+  @override
+  Future<void> openNotificationSettings() async {
+    if (kIsWeb) return;
+    // Opens the OS app-notification settings (Android) / app settings (iOS).
+    // The `app_settings` plugin ships both intents; no native code needed.
+    await AppSettings.openAppSettings(type: AppSettingsType.notification);
   }
 
   @override

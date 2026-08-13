@@ -486,6 +486,25 @@ class AppLocalizationsVi extends AppLocalizations {
   String get settingsCategories => 'Danh mục';
 
   @override
+  String get settingsNotificationsTitle => 'Thông báo';
+
+  @override
+  String get settingsNotificationsHint =>
+      'Nhắc nhở gia hạn và kết thúc dùng thử được lên lịch cục bộ trên thiết bị này.';
+
+  @override
+  String get settingsNotificationsEnabled => 'Bật';
+
+  @override
+  String get settingsNotificationsDisabled => 'Tắt';
+
+  @override
+  String get settingsNotificationsEnable => 'Bật thông báo';
+
+  @override
+  String get settingsNotificationsOpenSettings => 'Mở cài đặt';
+
+  @override
   String get settingsAbout => 'Giới thiệu';
 
   @override

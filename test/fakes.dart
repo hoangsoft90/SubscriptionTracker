@@ -158,6 +158,10 @@ class FakeNotificationPlatform implements NotificationPlatform {
 
   bool permissionRequested = false;
   bool permissionGranted = true;
+  bool settingsOpened = false;
+
+  /// Current OS permission state reported by [permissionStatus].
+  NotificationPermissionStatus status = NotificationPermissionStatus.enabled;
 
   @override
   Future<void> initialize() async {}
@@ -165,7 +169,22 @@ class FakeNotificationPlatform implements NotificationPlatform {
   @override
   Future<bool> requestPermission() async {
     permissionRequested = true;
+    // First request adopts [permissionGranted]; afterwards the OS keeps the
+    // reported status in sync for subsequent status() reads.
+    if (permissionGranted) {
+      status = NotificationPermissionStatus.enabled;
+    } else {
+      status = NotificationPermissionStatus.disabled;
+    }
     return permissionGranted;
+  }
+
+  @override
+  Future<NotificationPermissionStatus> permissionStatus() async => status;
+
+  @override
+  Future<void> openNotificationSettings() async {
+    settingsOpened = true;
   }
 
   @override

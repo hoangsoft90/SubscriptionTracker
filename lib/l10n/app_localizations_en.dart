@@ -486,6 +486,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsCategories => 'Categories';
 
   @override
+  String get settingsNotificationsTitle => 'Notifications';
+
+  @override
+  String get settingsNotificationsHint =>
+      'Renewal and trial-end reminders are scheduled locally on this device.';
+
+  @override
+  String get settingsNotificationsEnabled => 'On';
+
+  @override
+  String get settingsNotificationsDisabled => 'Off';
+
+  @override
+  String get settingsNotificationsEnable => 'Enable notifications';
+
+  @override
+  String get settingsNotificationsOpenSettings => 'Open settings';
+
+  @override
   String get settingsAbout => 'About';
 
   @override

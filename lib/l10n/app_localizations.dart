@@ -956,6 +956,42 @@ abstract class AppLocalizations {
   /// **'Categories'**
   String get settingsCategories;
 
+  /// No description provided for @settingsNotificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotificationsTitle;
+
+  /// No description provided for @settingsNotificationsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Renewal and trial-end reminders are scheduled locally on this device.'**
+  String get settingsNotificationsHint;
+
+  /// No description provided for @settingsNotificationsEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get settingsNotificationsEnabled;
+
+  /// No description provided for @settingsNotificationsDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsNotificationsDisabled;
+
+  /// No description provided for @settingsNotificationsEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable notifications'**
+  String get settingsNotificationsEnable;
+
+  /// No description provided for @settingsNotificationsOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get settingsNotificationsOpenSettings;
+
   /// No description provided for @settingsAbout.
   ///
   /// In en, this message translates to:
