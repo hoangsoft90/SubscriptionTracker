@@ -12,6 +12,26 @@ final showAdsProvider = Provider<bool>((ref) {
   return !isPro;
 });
 
+/// Pure decision — no platform channels, fully unit-testable.
+///
+/// An interstitial may show only when the add counter hits the frequency
+/// milestone AND the cooldown since the last show has elapsed. Keeping this
+/// logic free of AdMob/Riverpod lets tests verify the rate-limiting rules
+/// without a real ad instance.
+bool shouldShowInterstitial({
+  required int addCount,
+  required int frequency,
+  required DateTime now,
+  required DateTime? lastShownAt,
+  required Duration cooldown,
+}) {
+  if (addCount <= 0 || frequency <= 0) return false;
+  if (addCount % frequency != 0) return false;
+  final last = lastShownAt;
+  if (last == null) return true;
+  return now.difference(last) >= cooldown;
+}
+
 /// Owns the interstitial lifecycle. Ads are opportunistic: the ad is preloaded
 /// in the background after each add so that one is already ready at every
 /// [InterstitialAdsController.frequency]-th add (free tier only). Any load or
@@ -23,6 +43,7 @@ class InterstitialAdsController extends Notifier<int> {
   InterstitialAd? _ad;
   bool _loading = false;
   bool _pendingShow = false;
+  DateTime? _lastShownAt;
 
   @override
   int build() => 0;
@@ -33,7 +54,13 @@ class InterstitialAdsController extends Notifier<int> {
     if (ref.read(proEntitlementControllerProvider).value ?? false) return;
     final count = state + 1;
     state = count;
-    if (count % frequency == 0) {
+    if (shouldShowInterstitial(
+      addCount: count,
+      frequency: frequency,
+      now: DateTime.now(),
+      lastShownAt: _lastShownAt,
+      cooldown: AdConfig.interstitialCooldown,
+    )) {
       _showReadyAd();
     } else if (_ad == null && !_loading) {
       // Preload now so the next milestone has an ad ready to show.
@@ -54,6 +81,7 @@ class InterstitialAdsController extends Notifier<int> {
       onAdDismissedFullScreenContent: (a) => a.dispose(),
       onAdFailedToShowFullScreenContent: (a, _) => a.dispose(),
     );
+    _lastShownAt = DateTime.now();
     ad.show();
   }
 

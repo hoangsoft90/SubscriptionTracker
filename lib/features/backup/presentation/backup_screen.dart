@@ -109,7 +109,20 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     final strategy = await _chooseStrategy(file);
     if (strategy == null || !mounted) return;
 
-    await importService.apply(file, strategy: strategy);
+    // A structurally-valid backup can still fail to apply: a row missing a
+    // required field (e.g. hand-edited / truncated file) throws inside
+    // fromMap()/enum parsing. That must never crash the app — surface a
+    // clear error and keep the current data untouched.
+    try {
+      await importService.apply(file, strategy: strategy);
+    } catch (_) {
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.backupErrorInvalidFile)),
+        );
+      }
+      return;
+    }
     // Imported data changed the schedule — reconcile so stale reminders for
     // replaced/removed rows are cancelled and new ones are scheduled (fix:
     // previously old notifications stayed pending until the next app open).

@@ -16,13 +16,15 @@
 | — | Guidance + Review fixes | `subtrack-guidance` (mới) | ✅ Hoàn thành (2026-08-12) |
 | — | Platform config (targetSdk 36, network_security_config, package) | — | ✅ Hoàn thành (2026-08-11/12) |
 
-## Test status (2026-08-12)
+## Test status (2026-08-13)
 
-- **203/203 tests pass** ✓
+- **216/216 tests pass** ✓ (203 + 8 `ads_test` + 5 nav mới)
 - `flutter analyze` — **No issues found** ✓
+- GH Actions `build-apk.yml`: APK + AAB build success (run `31662555768`) — artifact `subtrack-release-apk` (32MB) + `subtrack-release-aab` (66.8MB).
 
 Phân bổ tests (chính):
-- Core: `money_test`, `billing_calculator_test`, `data_storage_test`, `local_storage_repository_test` (web storage), `backup_test`, `notifications_test`, `l10n_test`
+- Core: `money_test`, `billing_calculator_test`, `data_storage_test`, `local_storage_repository_test` (web storage), `backup_test`, `notifications_test`, `l10n_test`, `ads_test` (8: cooldown/frequency policy + test-ads mode)
+- Nav: `navigation_deep_link_test` (10: not-found recovery, /calendar /paywall deep link Home, /more/categories, onboarding restore, **root path → Home, /more/settings /more/backup /subscriptions/add /subscriptions/:id/edit back**)
 - Controller: `subscription_list_controller_test`, `dashboard_controller_test`, `free_tier_test`, `decision_engine_test`
 - Widget: `m1_widget_test`, `m1_crud_widget_test`, `m1_support`/`widget_harness`/`fakes`, `decision_engine_widget_test`, `ux_bugfix_widget_test`, `navigation_deep_link_test`, `guidance_test` (19), `subscription_detail_test` (2)
 - `integration_test/`: `device_ux_test`, `privacy_network_test`, `probe_test`

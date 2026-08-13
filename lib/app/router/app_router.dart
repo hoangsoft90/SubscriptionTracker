@@ -57,6 +57,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       // While settings are still loading, stay put (no redirect storm).
       if (onboarding == null) return null;
 
+      // Root path (web: the app opened at the bare domain URL, e.g.
+      // https://subtrack.app/) — there is no '/' route, so without this the
+      // error builder would show "Page not found" on first load. Route it to
+      // home; onboarding gating below still applies on the way.
+      if (path == '/') return '/home';
+
       final onOnboarding = path.startsWith('/onboarding');
 
       if (!onboarding.onboardingCompleted) {

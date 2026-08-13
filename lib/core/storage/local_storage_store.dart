@@ -94,8 +94,11 @@ class LocalStorageStore {
     return {
       for (final e in decoded.entries)
         e.key.toString(): [
-          for (final r in e.value as List)
-            if (r is Map) Map<String, Object?>.from(r),
+          // Guard like readRows/readSettings: a corrupt value (not a List)
+          // must never crash reads.
+          if (e.value is List)
+            for (final r in e.value as List)
+              if (r is Map) Map<String, Object?>.from(r),
         ],
     };
   }
