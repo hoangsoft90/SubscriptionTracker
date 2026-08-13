@@ -2,6 +2,30 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## Privacy policy + GitHub Pages (2026-08-13)
+
+- [2026-08-13] Xong: Tạo privacy policy song ngữ EN/VI cho SubTrack — `docs/privacy-policy.md` (source, khớp nội dung khóa trong `docs/privacy-labels.md`): local-first (dữ liệu lưu trên thiết bị), không backend/tài khoản/analytics SDK, AdMob non-personalized (free tier, Pro gỡ), IAP qua store, notifications cục bộ, permissions, xóa dữ liệu, contact.
+- [2026-08-13] Xong: Host lên **GitHub Pages** — branch `gh-pages` (orphan, chỉ chứa `index.html` self-contained responsive song ngữ, dark-mode aware) từ `docs/privacy-policy.html`. GitHub auto-enable Pages khi push branch. Live tại **https://hoangsoft90.github.io/SubscriptionTracker/** (HTTP 200 verified).
+- [2026-08-13] Xong: Commit `docs/privacy-policy.md` + `docs/privacy-policy.html` vào main (`38f3bb6`). URL này dùng cho App Store/Play Store privacy policy field khi submit.
+
+## Nav rà soát toàn diện + safe back + web warning (2026-08-13)
+
+- [2026-08-13] Xong: Rà soát toàn bộ nav flow (router + 36 điểm push/go/pop trong lib). Phát hiện + fix **điểm chết**: mở web ở root URL `/` (bare domain) → không có route `/` → errorBuilder hiện "Page not found" thay vì Home. Fix: `app_router.dart` redirect `path == '/' → '/home'` (onboarding gate vẫn áp dụng).
+- [2026-08-13] Verify nav toàn diện (thêm 5 test vào `navigation_deep_link_test.dart` → 10 total): root path lands Home; deep link `/more/settings`, `/more/backup`, `/subscriptions/add`, `/subscriptions/:id/edit` đều có BackButton (nested shell route, không dead-end); `/calendar`, `/paywall` deep link có Home nút (đã có từ 2026-08-10); unknown path → recovery screen; deep link trước onboarding → restore.
+- [2026-08-13] Web: `flutter build web` sạch, không warning (chỉ note wasm informational); bootstrap `semanticsEnabled` đã đúng từ trước. Lưu ý: môi trường này không có headless Chrome → không verify console runtime; trước đó (2026-08-10) đã CDP-verify web không exception.
+- [2026-08-13] Safe back toàn app: paywall/calendar/not-found có PopScope (back khi không back stack → `/home`); nested shell routes có back stack tự nhiên.
+- [2026-08-13] Verify: `flutter analyze` 0 issues; `flutter test` **216/216 pass** (+5 nav).
+
+## Ads test mode + cooldown + full code review (2026-08-13)
+
+- [2026-08-13] Xong: AdMob — thêm flag `testAds` (`bool.fromEnvironment('TEST_ADS')`) trong `ads_config.dart`: khi bật dùng Google sample ad unit IDs (banner/interstitial/rewarded/app) → tránh "No fill"/giới hạn trước khi ad unit thật có traffic. Bật bằng `flutter build apk --dart-define=TEST_ADS=true`. Production mặc định dùng ID thật.
+- [2026-08-13] Xong: AdMob — thêm **cooldown interstitial** `AdConfig.interstitialCooldown` (5 phút) + pure function `shouldShowInterstitial` (frequency + cooldown, unit-testable, không cần platform channel) trong `ads_controller.dart`; controller ghi `_lastShownAt` khi show. Test mới `test/ads_test.dart` (8 tests: milestone, cooldown elapsed/boundary, non-milestone, degenerate).
+- [2026-08-13] Review toàn bộ code (~40 file lib/) + fix 2 lỗi crash:
+  - **HIGH**: `backup_screen.dart` `_showImportFlow` — `importService.apply()` không bọc try/catch; backup JSON hợp lệ format nhưng row thiếu field/enum lạ (hand-edited/truncated) → `Subscription.fromMap` (`map['id']!`) / `BillingCycle.fromDb` (`firstWhere` throw) → **crash app**. Giờ bọc try/catch → snackbar lỗi, dữ liệu hiện tại không đổi.
+  - **MEDIUM**: `local_storage_store.readPriceHistory` — `e.value as List` cast cứng (hàm khác đều có `is!` guard) → crash nếu localStorage corrupt. Thêm guard.
+- [2026-08-13] Review findings (giữ nguyên, không fix): `_QueueTile._reasonLabel` trial days có thể âm (display-only); `_MonthCard`/`_NextRenewalRow` dùng `DateFormat('MMMM')`/`'EEE, MMM d'` không locale-aware (tháng tiếng Anh cho user VN — cosmetic); banner double-dispose race hiếm khi mua Pro đúng lúc ad đang load.
+- [2026-08-13] Verify: `flutter analyze` 0 issues; `flutter test` **211/211 pass** (203 cũ + 8 ads mới). Workflow GH Actions `build-apk.yml` đã chạy APK **và AAB** success (run `31662555768`): artifact `subtrack-release-apk` 32MB + `subtrack-release-aab` 66.8MB.
+
 ## GitHub Actions build APK (2026-08-13)
 
 - [2026-08-13] Xong: Push toàn bộ code SubTrack lên `github.com/hoangsoft90/SubscriptionTracker` (public, default branch `main`) — commit đầu tiên `a746af6` (289 files). Tạo workflow `.github/workflows/build-apk.yml` build **release APK bằng Gradle trực tiếp** (Flutter 3.44.9 stable + JDK 21 temurin qua `actions/setup-java`, `flutter build apk --release`, upload artifact `subtrack-release-apk`, retention 30 ngày) — **không dùng EAS, không cần token EAS**.
