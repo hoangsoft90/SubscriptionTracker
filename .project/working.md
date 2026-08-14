@@ -2,6 +2,18 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## AdMob banner collapse list — root cause device (2026-08-14)
+
+- [2026-08-14] Test trên phone thật (debug APK từ run `31784152560`/42e12cd, Pixel 3a): add "Netflix Test" 99,999 VND qua UI thật → **cả 2 tab Subscriptions + Home update NGAY** (bug invalidate dashboard đã hết, `30a8334` hoạt động đúng trên máy thật). Restart → dữ liệu persist, không crash.
+- [2026-08-14] **Tái hiện được bug thật còn lại trên máy**: sau pull-down (hoặc sau khi tab Subscriptions hiển thị một lúc), **list tab Subscriptions trống** dù DB vẫn còn 2 rows (verify qua sqlite thật: Spotify USD + Netflix VND, cả 2 ACTIVE). Home tab vẫn hiển thị đủ 2 items → data KHÔNG mất, chỉ UI list bị trống. Tap tab Subscriptions còn bị "nuốt" (có lúc không chuyển tab — dấu hiệu layout tràn che vùng tap).
+- [2026-08-14] **Root cause (xác minh bằng VM service thật trên máy, không đoán)**: dump widget tree + render tree qua `ext.flutter.debugDumpApp`/`debugDumpRenderTree`:
+  - Widget tree: 2 `_SubscriptionTile` VẪN ĐƯỢC BUILD (data provider bình thường) — chứng minh không phải bug dữ liệu.
+  - Render tree: Column tab Subscriptions `RenderFlex#800cc` **OVERFLOWING**; ListView của list có `constraints: BoxConstraints(0.0<=w<=392.7, h=0.0)`, `size: Size(392.7, 0.0)`, `viewport: 0.0`, sliver geometry **hidden** → list bị ép 0 chiều cao.
+  - Thủ phạm: **AdMob banner đã load** — `BannerAdView` trả `AdWidget` (platform view) KHÔNG bọc SizedBox, platform-view placeholder nhận `additionalConstraints: BoxConstraints(biggest)` → tự nở `Size(392.7, Infinity)` bên trong Column (chiều cao không giới hạn) → Column tràn → Expanded list nhận h=0. Đúng y hệt symptom "lúc hiển thị lúc không": list chỉ biến mất khi ad LOAD xong (thường vài giây sau mở app), và sau pull-down/rebuild khiến banner re-render.
+  - Home tab không bị vì banner Home lúc đó chưa load (SizedBox.shrink) — cùng widget nên cũng có thể dính sau.
+- [2026-08-14] Xong fix `banner_ad_view.dart`: bọc `AdWidget` trong `SizedBox(width: size.width.toDouble(), height: size.height.toDouble())` với `_size` (AdSize đã dùng để load banner) — pattern chuẩn google_mobile_ads; giữ `SafeArea`/Container surface. Regression test mới `test/banner_layout_test.dart` (2 tests, dùng RenderProxyBox tự nở theo `constraints.biggest` mô phỏng platform-view placeholder): (1) ad slot không constrain → Column tràn + Expanded list h=0 (repro); (2) bọc SizedBox(w,h) → list giữ chiều cao + 2 tiles hiển thị (fix).
+- [2026-08-14] Verify: `flutter analyze` 0 issues; `flutter test` **232/232 pass** (230 cũ + 2 banner layout). Commit + push **`eaa9a5c`** lên `main` — GH Actions run `31810714502` đang build APK/AAB mới (chứa fix banner). Khi xong, cài lại debug APK lên phone và verify lại flow add + pull-down + chờ ad load.
+
 ## Subscriptions tab không update — investigation + hardening (2026-08-14)
 
 - [2026-08-14] User báo tiếp: "vẫn chưa được — lúc hiển thị lúc không; khi thêm subscription thì 2 tab (home, subscriptions) không update động mà restart app mới thấy". Điều tra systematic:
