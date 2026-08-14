@@ -97,7 +97,23 @@ class SubscriptionListController extends AsyncNotifier<SubscriptionListState> {
   Future<void> reload() async {
     final repo = await ref.read(subscriptionRepositoryProvider.future);
     final all = await repo.getAll();
-    state = AsyncData(state.value!.copyWith(subscriptions: all));
+    // Null-safe state update: if the initial build is still in flight
+    // (state has no value yet — e.g. a mutation races the first load),
+    // rebuild the full state from the fresh rows instead of crashing on
+    // `state.value!`. A crash here would leave the list stuck on its stale
+    // previous data until the next app restart — the reported "tabs don't
+    // show the new item until restart" symptom.
+    final current = state.value;
+    state = AsyncData(
+      current == null
+          ? SubscriptionListState(
+              subscriptions: all,
+              query: '',
+              sort: SubscriptionSort.nextBilling,
+              filter: const SubscriptionFilter(),
+            )
+          : current.copyWith(subscriptions: all),
+    );
     // The dashboard (Home tab) derives from the same subscriptions but is a
     // separate provider — invalidate it so the Home cards reflect adds,
     // edits, deletes and status changes immediately (fix: previously only the

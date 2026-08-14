@@ -1,11 +1,18 @@
+import 'dart:async';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:subtrack/core/calendar/date_utils.dart';
+import 'package:subtrack/core/providers.dart';
 import 'package:subtrack/features/subscriptions/application/subscription_list_controller.dart';
+import 'package:subtrack/features/subscriptions/data/subscription_repository.dart';
 import 'package:subtrack/features/subscriptions/domain/billing_cycle.dart';
+import 'package:subtrack/features/subscriptions/domain/price_history.dart';
 import 'package:subtrack/features/subscriptions/domain/subscription.dart';
 import 'package:subtrack/features/subscriptions/domain/subscription_status.dart';
 
+import 'fakes.dart';
 import 'm1_support.dart';
 
 void main() {
@@ -181,4 +188,93 @@ void main() {
         .first;
     expect(restored.nextBillingDate, aug31);
   });
+
+  test('reload is null-safe when a mutation races the initial build', () async {
+    // Regression for the reported "tabs don't show the new item until app
+    // restart" symptom: if a mutation ever runs while the provider's first
+    // build is still loading (state has no value), reload() must rebuild the
+    // state from the fresh DB rows instead of crashing on `state.value!`.
+    // A crash there would leave the list on stale data until the next launch.
+    final gate = Completer<void>();
+    final repo = _GatedSubscriptionRepository(
+      FakeSubscriptionRepository(),
+      gate,
+    );
+
+    final container = ProviderContainer(overrides: [
+      subscriptionRepositoryProvider.overrideWith((ref) async => repo),
+      categoryRepositoryProvider.overrideWith(
+          (ref) async => FakeCategoryRepository()),
+      settingsRepositoryProvider.overrideWith(
+          (ref) async => FakeSettingsRepository()),
+    ]);
+    addTearDown(container.dispose);
+
+    // Start the initial build — its getAll() is gated, so the provider has
+    // no value yet (the race window).
+    final notifier = container.read(subscriptionListControllerProvider.notifier);
+    await Future<void>.delayed(Duration.zero);
+    expect(container.read(subscriptionListControllerProvider).value, isNull);
+
+    // The mutation races the first load: must not throw, and the list must
+    // immediately reflect the insert.
+    await notifier.add(sub(id: 'a', name: 'Netflix'));
+
+    final after = container.read(subscriptionListControllerProvider);
+    expect(after.hasError, isFalse);
+    expect(after.value!.subscriptions.map((s) => s.id), ['a']);
+
+    // Release the initial build: it re-reads storage (which already has the
+    // row) so the data stays — never a stale empty list.
+    gate.complete();
+    await Future<void>.delayed(Duration.zero);
+    final settled = container.read(subscriptionListControllerProvider);
+    expect(settled.value!.subscriptions.map((s) => s.id), ['a']);
+  });
+}
+
+/// [FakeSubscriptionRepository] whose FIRST `getAll()` is gated — used to
+/// simulate a slow initial load so a mutation can race it.
+class _GatedSubscriptionRepository implements SubscriptionRepository {
+  _GatedSubscriptionRepository(this._inner, this._gate);
+
+  final FakeSubscriptionRepository _inner;
+  final Completer<void> _gate;
+  bool _firstGetAll = true;
+
+  @override
+  Future<List<Subscription>> getAll() {
+    if (_firstGetAll) {
+      _firstGetAll = false;
+      return _gate.future.then((_) => _inner.getAll());
+    }
+    return _inner.getAll();
+  }
+
+  @override
+  Future<String> insert(Subscription subscription) => _inner.insert(subscription);
+
+  @override
+  Future<void> update(Subscription subscription) => _inner.update(subscription);
+
+  @override
+  Future<void> delete(String id) => _inner.delete(id);
+
+  @override
+  Future<Subscription?> getById(String id) => _inner.getById(id);
+
+  @override
+  Future<int> countByStatus(SubscriptionStatus status) =>
+      _inner.countByStatus(status);
+
+  @override
+  Future<void> insertPriceHistory(PriceHistoryEntry entry) =>
+      _inner.insertPriceHistory(entry);
+
+  @override
+  Future<List<PriceHistoryEntry>> getPriceHistory(String subscriptionId) =>
+      _inner.getPriceHistory(subscriptionId);
+
+  @override
+  Future<void> deleteAll() => _inner.deleteAll();
 }
