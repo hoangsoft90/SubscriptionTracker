@@ -2,6 +2,16 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## Subscriptions tab không update — investigation + hardening (2026-08-14)
+
+- [2026-08-14] User báo tiếp: "vẫn chưa được — lúc hiển thị lúc không; khi thêm subscription thì 2 tab (home, subscriptions) không update động mà restart app mới thấy". Điều tra systematic:
+  - **Ground truth GH Actions**: build `9cdb776` (chứa fix invalidate dashboard + RefreshIndicator) đã **completed/success 2026-08-14T05:30Z**; workflow build từ `main` trên push (không lỗi artifact). User gần như chắc chắn vẫn đang cài APK cũ (hết thời gian tải bản mới khi report).
+  - **Verify code hiện tại trên mọi tầng**: (1) widget repro `subscription_display_test.dart` 4 scenarios PASS; (2) **mới: integration test chạy REAL sqflite** `test/real_db_add_flow_test.dart` — `AppDatabase.open()` (migrations v1+v2 + seeder) → `SqliteStorageBackend` → controller thật: add → list provider + dashboard provider cập nhật NGAY, thêm lần 2 vẫn đúng, simulate restart (đóng DB + container mới, mở lại cùng file) → dữ liệu persist. PASS. (3) web localStorage layer `web_storage_flow_test.dart` PASS.
+  - **Root cause của symptom gốc** (đã fix `30a8334`): Home không invalidate dashboard sau add. **Cơ chế stale còn lại duy nhất** tìm thấy: `SubscriptionListController.reload()` dùng `state.value!` — nếu mutation race lần build đầu tiên (state chưa có value) → **crash null-check → list giữ state cũ tới khi restart** (đúng y hệt "restart app mới thấy").
+- [2026-08-14] Xong: **Harden `reload()` null-safe** — nếu `state.value == null` (initial build còn loading) thì rebuild full `SubscriptionListState` từ rows mới thay vì crash; giữ nguyên `ref.invalidate(dashboardControllerProvider)` sau mọi mutation.
+- [2026-08-14] Test: thêm regression `reload is null-safe when a mutation races the initial build` (repo gated `Completer`, mutation chạy khi state chưa có value → không throw + list hiển thị ngay + sau khi build xong vẫn đúng) + integration test `real_db_add_flow_test.dart`. Verify: `flutter analyze` 0 issues; `flutter test` **230/230 pass**.
+- [2026-08-14] Commit + push **`2298083`** lên `main` (theo yêu cầu user: push thẳng main, không tạo branch khác) — GH Actions tự trigger build APK + AAB cho `2298083` (run `31776276001`, in_progress lúc ghi). Từ giờ APK luôn build từ `main`.
+
 ## Subscription display bug report — investigation (2026-08-13)
 
 - [2026-08-13] User báo: sau khi thêm subscription, tab subscriptions không hiển thị (phải mở lại app), pull down thì mất dữ liệu. **Điều tra systematic (không fix vội):**
