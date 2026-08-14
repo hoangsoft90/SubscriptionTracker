@@ -2,6 +2,17 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## Subscription display bug report — investigation (2026-08-13)
+
+- [2026-08-13] User báo: sau khi thêm subscription, tab subscriptions không hiển thị (phải mở lại app), pull down thì mất dữ liệu. **Điều tra systematic (không fix vội):**
+  - Chạy repro widget test (`test/subscription_display_test.dart`, 4 scenarios: add→hiển thị ngay, restart cùng storage, pull-refresh Home, pull-down list subscriptions) trên **current main `30a8334` → PASS hết**. Chạy cùng test trên **2 build cũ** (worktree `a746af6` = build APK đầu tiên, `09a6edc` = build gần nhất trước 30a8334) → cả 2 **FAIL đúng 1 chỗ**: Home tab vẫn empty sau add (dashboard KHÔNG được invalidate — chính là bug đã fix ở `30a8334`). Test "add → subscriptions list hiển thị" PASS trên mọi version.
+  - Kết luận: **bug user gặp nằm ở build cũ** (Home tab stale — đã fix trong `30a8334`, build GH Actions mới nhất hoàn thành 2026-08-13T08:29Z). Code hiện tại không tái hiện lỗi trên mọi đường storage.
+  - Verify thêm web storage layer: `test/web_storage_flow_test.dart` (2 tests, LocalStorage*Repository thật + controller thật: add → restart container mới → refresh provider, dữ liệu không mất) → PASS. `flutter build web` sạch (chỉ note wasm informational).
+- [2026-08-13] Xong: Thêm **pull-to-refresh cho subscriptions list** (`RefreshIndicator` quanh `ListView.builder`, `AlwaysScrollableScrollPhysics`, onRefresh = `reload()`) — trước đây tab subscriptions KHÔNG có refresh gesture nào (chỉ Home có), nên user pull-down không làm gì và dữ liệu tưởng như "mất". Giờ pull-down re-read storage → list luôn phản ánh dữ liệu đã persist.
+- [2026-08-13] Test: `test/subscription_display_test.dart` (4 tests, regression giữ lại) + `test/web_storage_flow_test.dart` (2 tests). Verify: `flutter analyze` 0 issues; `flutter test` **228/228 pass** (222 cũ + 6 mới).
+- [2026-08-13] **Test web trước khi build APK**: chạy `flutter run -d chrome` (dev, hot reload) hoặc `flutter build web` + serve (production): `cd build/web && python3 -m http.server 8080` → mở http://localhost:8080. Lưu ý: web dùng **localStorage** (không phải SQLite như Android) — dữ liệu web và APK tách biệt; behavior khác biệt duy nhất là web không có notifications/timezone (no-op), còn logic list/dashboard/add/refresh giống hệt.
+- [2026-08-14] Xong: Commit + push **`9cdb776`** (RefreshIndicator subscriptions list + 4 regression/2 web-storage tests + fix test date-dependent `dashboard_controller_test`): verify lần nữa trước commit — `flutter analyze` 0 issues, `flutter test` **228/228 pass**; không secret trong diff (`.env` gitignored). GH Actions đã tự trigger build APK + AAB cho `9cdb776` (run `31773206294`, queued). Set remote `origin` = `https://github.com/hoangsoft90/SubscriptionTracker.git`.
+
 ## Home tab stale fix + Notification permission UI (2026-08-13)
 
 - [2026-08-13] Xong bug: **Home tab trống sau khi thêm subscription đầu tiên** — `SubscriptionListController` chỉ reload state của chính nó, KHÔNG invalidate `dashboardControllerProvider` → Home tab giữ state cũ (trống). Fix: `reload()` giờ gọi `ref.invalidate(dashboardControllerProvider)` sau mọi mutation (add/edit/delete/setStatus/markReviewed) → Home cập nhật ngay. Regression test trong `dashboard_controller_test.dart` (dashboard rỗng → add → active chứa sub mới + monthlyTotal đúng).
