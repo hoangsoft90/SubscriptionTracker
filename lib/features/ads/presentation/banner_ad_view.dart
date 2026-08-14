@@ -17,6 +17,7 @@ class BannerAdView extends ConsumerStatefulWidget {
 
 class _BannerAdViewState extends ConsumerState<BannerAdView> {
   BannerAd? _banner;
+  AdSize? _size;
   bool _loaded = false;
   bool _loadStarted = false;
 
@@ -39,6 +40,7 @@ class _BannerAdViewState extends ConsumerState<BannerAdView> {
       width,
     );
     if (size == null || !mounted) return;
+    _size = size;
     final banner = BannerAd(
       adUnitId: AdConfig.bannerUnitId,
       size: size,
@@ -78,12 +80,24 @@ class _BannerAdViewState extends ConsumerState<BannerAdView> {
     }
     final banner = _banner;
     if (banner == null || !_loaded) return const SizedBox.shrink();
+    final size = _size;
+    // The platform-view placeholder expands to fill ALL available space when
+    // unconstrained (it reports infinite height inside a Column). Constraining
+    // the AdWidget to the loaded banner's exact AdSize keeps the banner
+    // from collapsing the surrounding layout — without this, the Expanded
+    // list on the same screen gets h=0 and renders nothing while the data is
+    // actually there (the "list sometimes empty" bug).
+    if (size == null) return const SizedBox.shrink();
     return SafeArea(
       top: false,
       child: Container(
         width: double.infinity,
         color: Theme.of(context).colorScheme.surface,
-        child: AdWidget(ad: banner),
+        child: SizedBox(
+          width: size.width.toDouble(),
+          height: size.height.toDouble(),
+          child: AdWidget(ad: banner),
+        ),
       ),
     );
   }
