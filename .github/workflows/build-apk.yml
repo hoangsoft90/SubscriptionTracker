@@ -38,6 +38,18 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
+      - name: Build debug APK (Gradle)
+        # Build debug trước -> artifact sẵn sàng sớm nhất, upload ngay sau khi xong.
+        run: flutter build apk --debug
+
+      - name: Upload debug APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: subtrack-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Build APK (Gradle, release)
         # Release build dùng debug signing config (build.gradle.kts) nên không
         # cần keystore. Build trực tiếp qua Gradle plugin của Flutter.
