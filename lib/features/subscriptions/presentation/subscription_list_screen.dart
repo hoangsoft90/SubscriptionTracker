@@ -136,13 +136,22 @@ class _SubscriptionListScreenState extends ConsumerState<SubscriptionListScreen>
                             ? () => context.push('/subscriptions/add')
                             : null,
                       )
-                    : ListView.builder(
-                        padding: const EdgeInsets.only(bottom: 88),
-                        itemCount: visible.length,
-                        itemBuilder: (context, index) {
-                          final sub = visible[index];
-                          return _SubscriptionTile(subscription: sub);
-                        },
+                    : RefreshIndicator(
+                        // Pull-down re-reads storage — the list always
+                        // reflects what's persisted (never stale/empty while
+                        // data exists).
+                        onRefresh: () => ref
+                            .read(subscriptionListControllerProvider.notifier)
+                            .reload(),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.only(bottom: 88),
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: visible.length,
+                          itemBuilder: (context, index) {
+                            final sub = visible[index];
+                            return _SubscriptionTile(subscription: sub);
+                          },
+                        ),
                       ),
               ),
               // Free tier only: adaptive banner above the bottom nav (Pro: none).

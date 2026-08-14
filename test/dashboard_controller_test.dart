@@ -153,13 +153,24 @@ void main() {
       sub(id: 'trial', name: 'Canva')
           .copyWith(isTrial: true, trialEndDate: now.add(const Duration(days: 2))),
     );
-    // Old reviewed sub → medium (stale).
+    // Old reviewed sub → medium (stale). Billing far out so renewalDue
+    // (within 1 day) can't shadow the stale reason — the helper's default
+    // nextBillingDate 2026-08-15 becomes "tomorrow" near that date.
     await notifier.add(
-      sub(id: 'stale', name: 'Adobe')
-          .copyWith(lastReviewedAt: now.subtract(const Duration(days: 200))),
+      sub(
+        id: 'stale',
+        name: 'Adobe',
+        nextBilling: now.add(const Duration(days: 60)),
+      ).copyWith(lastReviewedAt: now.subtract(const Duration(days: 200))),
     );
-    // Price changed → medium.
-    await notifier.add(sub(id: 'price', name: 'Netflix').copyWith(previousAmountMinor: 999));
+    // Price changed → medium (billing far out for the same reason).
+    await notifier.add(
+      sub(
+        id: 'price',
+        name: 'Netflix',
+        nextBilling: now.add(const Duration(days: 60)),
+      ).copyWith(previousAmountMinor: 999),
+    );
 
     final dashboard = await container.read(dashboardControllerProvider.future);
     final reasons = {
