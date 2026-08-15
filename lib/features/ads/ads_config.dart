@@ -21,12 +21,14 @@ class AdConfig {
   /// Test-ads mode. When true, ALL ad units resolve to Google's official
   /// sample/test IDs instead of the real ones, so ads always fill during
   /// development — real units return "No fill" until they have valid traffic
-  /// and are active in the AdMob console, and test mode avoids that limit.
+  /// and are active in the AdMob console, and test mode avoids that limit
+  /// (fresh/unapproved accounts can be limited).
   ///
-  /// Enable with: `flutter run --dart-define=TEST_ADS=true`
-  /// or `flutter build apk --dart-define=TEST_ADS=true`. Defaults to false
-  /// (production uses the real units).
-  static const bool testAds = bool.fromEnvironment('TEST_ADS');
+  /// NOW ON BY DEFAULT (user decision 2026-08-15): while the app is being
+  /// built/tested, test ads are the safe default so the real AdMob account
+  /// is never touched. Switch to production with
+  /// `flutter build apk --dart-define=TEST_ADS=false`.
+  static const bool testAds = bool.fromEnvironment('TEST_ADS', defaultValue: true);
 
   /// Real (production) ad unit IDs for `com.subguard.app`
   /// (set up 2026-08-11). Same app ID on Android + iOS.

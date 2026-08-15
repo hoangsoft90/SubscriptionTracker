@@ -11,6 +11,8 @@ import '../application/settings_controller.dart';
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
+  /// Currencies selectable as primary. Manual exchange rates are editable for
+  /// every currency here except USD (the 1-USD pivot is fixed at 1.0).
   static const _currencies = ['USD', 'EUR', 'GBP', 'VND', 'JPY', 'KRW'];
 
   @override
@@ -151,6 +153,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                   ),
                   const Divider(height: 1),
+                  _ExchangeRatesSection(),
+                  const Divider(height: 1),
                   ListTile(
                     leading: const Icon(Icons.translate),
                     title: Text(l10n.settingsLanguage),
@@ -278,6 +282,144 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Text(label),
         ],
       ),
+    );
+  }
+}
+
+/// Manual exchange-rate fallback (multi-currency report, user-approved
+/// 2026-08-15): lets the user type "1 USD = X" for each supported currency.
+/// Live rates from the free API win when online; these are used offline.
+///
+/// Only non-USD currencies are editable — USD is the fixed pivot (1.0).
+class _ExchangeRatesSection extends ConsumerStatefulWidget {
+  const _ExchangeRatesSection();
+
+  @override
+  ConsumerState<_ExchangeRatesSection> createState() =>
+      _ExchangeRatesSectionState();
+}
+
+class _ExchangeRatesSectionState extends ConsumerState<_ExchangeRatesSection> {
+  final Map<String, TextEditingController> _controllers = {};
+  bool _loaded = false;
+  bool _saving = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    for (final c in _controllers.values) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  void _ensureControllers(Map<String, double> rates) {
+    if (_loaded) return;
+    _loaded = true;
+    for (final currency
+        in SettingsScreen._currencies.where((c) => c != 'USD')) {
+      _controllers[currency] = TextEditingController(
+        text: rates[currency]?.toStringAsFixed(2) ?? '',
+      );
+    }
+  }
+
+  Future<void> _save() async {
+    final parsed = <String, double>{};
+    for (final entry in _controllers.entries) {
+      final value = double.tryParse(entry.value.text.trim());
+      if (value == null || value <= 0) {
+        setState(() => _error = '${entry.key}: invalid rate');
+        return;
+      }
+      parsed[entry.key] = value;
+    }
+    setState(() {
+      _error = null;
+      _saving = true;
+    });
+    try {
+      final repo = await ref.read(settingsRepositoryProvider.future);
+      await saveManualExchangeRates(repo, parsed);
+      // Refresh both the manual-rates view and the live-exchange provider so
+      // the Home headline picks up the edited fallback immediately.
+      ref.invalidate(manualExchangeRatesProvider);
+      ref.invalidate(exchangeRatesProvider);
+      if (mounted) setState(() => _saving = false);
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final manual = ref.watch(manualExchangeRatesProvider).value;
+    if (manual == null) {
+      return const SizedBox.shrink();
+    }
+    _ensureControllers(manual);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          leading: const Icon(Icons.currency_exchange),
+          title: Text(l10n.settingsExchangeRatesTitle),
+          subtitle: Text(l10n.settingsExchangeRatesHint),
+        ),
+        for (final currency
+            in SettingsScreen._currencies.where((c) => c != 'USD'))
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '1 USD =',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 120,
+                  child: TextField(
+                    controller: _controllers[currency],
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      border: const OutlineInputBorder(),
+                      suffixText: currency,
+                    ),
+                    onSubmitted: (_) => _save(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        if (_error != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              _error!,
+              style: TextStyle(color: theme.colorScheme.error, fontSize: 12),
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: FilledButton.tonal(
+              onPressed: _saving ? null : _save,
+              child: Text(l10n.settingsExchangeRatesSave),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

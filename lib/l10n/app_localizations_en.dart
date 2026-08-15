@@ -103,6 +103,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardYearly => 'Yearly';
 
   @override
+  String get dashboardConvertedNote =>
+      '≈ converted to your primary currency at current exchange rates';
+
+  @override
   String get dashboardFiveYear => '5-Year Cost at Current Prices';
 
   @override
@@ -469,6 +473,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsCurrencyHint =>
       'Changing it regroups totals; existing amounts keep their own currency.';
+
+  @override
+  String get settingsExchangeRatesTitle => 'Exchange rates (fallback)';
+
+  @override
+  String get settingsExchangeRatesHint =>
+      'Used when offline. Live rates from the free API update automatically when online.';
+
+  @override
+  String get settingsExchangeRatesSave => 'Save rates';
 
   @override
   String get settingsTheme => 'Appearance';

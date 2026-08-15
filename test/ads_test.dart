@@ -111,18 +111,18 @@ void main() {
   });
 
   group('AdConfig test-ads mode', () {
-    test('production (default) uses the real ad unit IDs', () {
-      // The test runner does not pass --dart-define=TEST_ADS, so testAds is
-      // false here — the units must be the production ones (format
-      // ca-app-pub-<pub>/<unit>) for com.subguard.app.
-      expect(AdConfig.testAds, isFalse);
-      expect(AdConfig.appId, contains('ca-app-pub-6917313063209470'));
-      expect(AdConfig.bannerUnitId, contains('ca-app-pub-6917313063209470'));
+    test('test ads are ON by default (avoids real-unit "No fill" limits)', () {
+      // User decision 2026-08-15: while the app is being built/tested, all
+      // ad units resolve to Google's official sample IDs so the real AdMob
+      // account is never touched. Flip with --dart-define=TEST_ADS=false.
+      expect(AdConfig.testAds, isTrue);
+      expect(AdConfig.appId, contains('ca-app-pub-3940256099942544'));
+      expect(AdConfig.bannerUnitId, contains('ca-app-pub-3940256099942544'));
       expect(
         AdConfig.interstitialUnitId,
-        contains('ca-app-pub-6917313063209470'),
+        contains('ca-app-pub-3940256099942544'),
       );
-      expect(AdConfig.rewardedUnitId, contains('ca-app-pub-6917313063209470'));
+      expect(AdConfig.rewardedUnitId, contains('ca-app-pub-3940256099942544'));
     });
 
     test('cooldown default is 5 minutes', () {

@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/l10n/l10n.dart';
 import '../../../core/money/money.dart';
+import '../../../core/providers.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/money_text.dart';
 import '../../ads/ads_controller.dart';
@@ -39,6 +40,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final dashboard = ref.watch(dashboardControllerProvider);
     final primary =
         ref.watch(settingsControllerProvider).value?.primaryCurrency ?? 'USD';
+    final exchangeRates = ref.watch(exchangeRatesProvider).value;
     final showAds = ref.watch(showAdsProvider);
     final calendarSeen =
         ref.watch(guidanceControllerProvider).value?.completedStepIds
@@ -70,6 +72,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       child: Scaffold(
         appBar: AppBar(title: Text(l10n.appName)),
+        // Banner lives in the bottomNavigationBar slot (not the body Column)
+        // so it can never collapse the scrollable above it and the FAB
+        // (where present) floats above it. Renders nothing while loading.
+        bottomNavigationBar: showAds ? const BannerAdView() : null,
         body: Column(
           children: [
             Expanded(
@@ -89,12 +95,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                   final controller =
                       ref.read(dashboardControllerProvider.notifier);
-                  final monthly = controller.monthlyTotal(primary);
-                  final yearly = controller.yearlyTotal(primary);
+                  // Multi-currency report (user-approved 2026-08-15): when
+                  // exchange rates are available, the headline converts every
+                  // currency to the primary one and a per-currency breakdown
+                  // is shown below. Without rates (offline + no manual
+                  // rates) it falls back to the primary-only total.
+                  final rates = exchangeRates?.rates;
+                  // Converted headline is only trustworthy when EVERY active
+                  // subscription can be converted — if any currency lacks a
+                  // rate, fall back to the primary-only total rather than
+                  // silently truncating the headline (the per-currency
+                  // breakdown below still shows every currency exactly).
+                  final convertibleRates = (rates != null &&
+                          controller.allActiveConvertible(primary, rates))
+                      ? rates
+                      : null;
+                  final monthly = convertibleRates != null
+                      ? controller.monthlyTotalConverted(primary, convertibleRates)
+                      : controller.monthlyTotal(primary);
+                  final yearly = convertibleRates != null
+                      ? controller.yearlyTotalConverted(primary, convertibleRates)
+                      : controller.yearlyTotal(primary);
                   final monthTotal = controller.monthTotal(primary);
-                  final projectedSavings =
-                      state.savings.projectedMonthly[primary] ?? 0;
-                  final realizedSavings = state.savings.realized[primary] ?? 0;
+                  final byCurrency = controller.monthlyByCurrency();
+                  final projectedSavings = convertibleRates != null
+                      ? controller.savingsConverted(
+                          state.savings.projectedMonthly,
+                          primary,
+                          convertibleRates,
+                        )
+                      : (state.savings.projectedMonthly[primary] ?? 0);
+                  final realizedSavings = convertibleRates != null
+                      ? controller.savingsConverted(
+                          state.savings.realized, primary, convertibleRates,
+                        )
+                      : (state.savings.realized[primary] ?? 0);
 
                   return RefreshIndicator(
                     onRefresh: () async =>
@@ -111,6 +146,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             projectedSavings:
                                 Money(projectedSavings, primary),
                             realizedSavings: Money(realizedSavings, primary),
+                            // Per-currency monthly breakdown shown only when
+                            // more than one currency is active.
+                            breakdownByCurrency: byCurrency.length > 1
+                                ? byCurrency
+                                : null,
+                            // "≈ converted" note when the headline used
+                            // exchange rates (live or manual).
+                            converted: convertibleRates != null,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -138,8 +181,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 },
               ),
             ),
-            // Free tier only: adaptive banner above the bottom nav (Pro: none).
-            if (showAds) const BannerAdView(),
           ],
         ),
       ),
@@ -154,12 +195,23 @@ class _CostCard extends StatelessWidget {
     required this.yearly,
     required this.projectedSavings,
     required this.realizedSavings,
+    this.breakdownByCurrency,
+    this.converted = false,
   });
 
   final Money monthly;
   final Money yearly;
   final Money projectedSavings;
   final Money realizedSavings;
+
+  /// Per-currency monthly equivalents (multi-currency report) — rendered as
+  /// a compact breakdown line under the headline when more than one currency
+  /// is active. Null when everything is already in the primary currency.
+  final Map<String, int>? breakdownByCurrency;
+
+  /// True when the headline was produced by converting other currencies to
+  /// the primary one (live or manual rates) — shows the "≈" estimated note.
+  final bool converted;
 
   @override
   Widget build(BuildContext context) {
@@ -236,6 +288,36 @@ class _CostCard extends StatelessWidget {
                 ),
               ],
             ),
+            // Multi-currency breakdown: one line per currency, each showing
+            // its own monthly equivalent with its ISO code — the headline
+            // converts to primary, this line keeps every currency visible.
+            if (breakdownByCurrency != null) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  for (final entry in breakdownByCurrency!.entries)
+                    MoneyText(
+                      Money(entry.value, entry.key),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      currencyCode: true,
+                      maxLines: 1,
+                    ),
+                ],
+              ),
+            ],
+            if (converted) ...[
+              const SizedBox(height: 4),
+              Text(
+                l10n.dashboardConvertedNote,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
             if (hasSavings) ...[
               const Divider(height: 20),
               Row(

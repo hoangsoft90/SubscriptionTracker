@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/money/exchange_rates.dart';
 import '../../../core/providers.dart';
 import '../../calendar/money_calendar.dart';
 import '../../decision/review_queue.dart';
@@ -123,6 +124,65 @@ class DashboardController extends AsyncNotifier<DashboardState> {
     return {
       for (final entry in yearly.entries) entry.key: entry.value ~/ 12,
     };
+  }
+
+  /// Monthly cost in [primary], converting every active subscription from
+  /// its own currency through USD (multi-currency report, user-approved
+  /// 2026-08-15). Uses [rates] (units per 1 USD); amounts whose currency has
+  /// no rate are excluded from the converted total and remain visible in the
+  /// per-currency breakdown instead — the conversion never invents a rate.
+  int monthlyTotalConverted(String primary, Map<String, double> rates) {
+    var total = 0;
+    for (final sub in state.value?.active ?? const <Subscription>[]) {
+      final converted = convertMinorToPrimary(
+        amountMinor: _projectYearly(sub),
+        from: sub.currency,
+        to: primary,
+        rates: rates,
+      );
+      if (converted != null) total += converted;
+    }
+    return total ~/ 12;
+  }
+
+  /// Yearly cost in [primary], converting every active subscription from its
+  /// own currency through USD (see [monthlyTotalConverted]).
+  int yearlyTotalConverted(String primary, Map<String, double> rates) {
+    var total = 0;
+    for (final sub in state.value?.active ?? const <Subscription>[]) {
+      final converted = convertMinorToPrimary(
+        amountMinor: _projectYearly(sub),
+        from: sub.currency,
+        to: primary,
+        rates: rates,
+      );
+      if (converted != null) total += converted;
+    }
+    return total;
+  }
+
+  /// Whether every active subscription can be converted to [primary] with
+  /// [rates] — false means the converted total silently skips some amounts.
+  bool allActiveConvertible(String primary, Map<String, double> rates) {
+    for (final sub in state.value?.active ?? const <Subscription>[]) {
+      if (sub.currency == primary) continue;
+      if (rates[sub.currency] == null || rates[sub.currency]! <= 0) {
+        return false;
+      }
+      if (rates[primary] == null || rates[primary]! <= 0) return false;
+    }
+    return true;
+  }
+
+  /// Converted savings (projected monthly / realized), per the multi-currency
+  /// report: every currency is converted to [primary] through [rates];
+  /// amounts without a rate are skipped.
+  int savingsConverted(
+    Map<String, int> byCurrency,
+    String primary,
+    Map<String, double> rates,
+  ) {
+    return sumConvertedTo(byCurrency: byCurrency, to: primary, rates: rates);
   }
 
   /// Current-month recurring charges in [currency] (integer minor units).

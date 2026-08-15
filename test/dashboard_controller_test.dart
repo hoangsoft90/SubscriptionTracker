@@ -252,4 +252,75 @@ void main() {
     expect(dashboard.monthCharges.length, 2);
     expect(controller.monthTotal('USD'), 3000);
   });
+
+  group('multi-currency converted totals (report in primary currency)', () {
+    const rates = {'USD': 1.0, 'VND': 25400.0};
+
+    test('converts every currency to the primary one', () async {
+      final container = harness.container();
+      addTearDown(container.dispose);
+
+      final notifier =
+          container.read(subscriptionListControllerProvider.notifier);
+      // $10 monthly (USD) + 254,000 VND monthly (= $10 equivalent).
+      await notifier.add(sub(id: 'usd', amount: 1000, currency: 'USD'));
+      await notifier.add(sub(id: 'vnd', amount: 254000, currency: 'VND'));
+
+      await container.read(dashboardControllerProvider.future);
+      final controller = container.read(dashboardControllerProvider.notifier);
+      // Monthly headline = both converted to USD: 10 + 10 = $20 → 2000.
+      expect(controller.monthlyTotalConverted('USD', rates), 2000);
+      expect(controller.yearlyTotalConverted('USD', rates), 24000);
+      // Per-currency breakdown keeps the originals visible.
+      expect(controller.monthlyByCurrency()['USD'], 1000);
+      expect(controller.monthlyByCurrency()['VND'], 254000);
+    });
+
+    test('allActiveConvertible is false when a rate is missing', () async {
+      final container = harness.container();
+      addTearDown(container.dispose);
+
+      final notifier =
+          container.read(subscriptionListControllerProvider.notifier);
+      await notifier.add(sub(id: 'usd', amount: 1000, currency: 'USD'));
+      await notifier.add(sub(id: 'odd', amount: 500, currency: 'XYZ'));
+
+      await container.read(dashboardControllerProvider.future);
+      final controller = container.read(dashboardControllerProvider.notifier);
+      expect(controller.allActiveConvertible('USD', rates), isFalse);
+      // XYZ has no rate → excluded from the converted total, not invented.
+      expect(controller.monthlyTotalConverted('USD', rates), 1000);
+    });
+
+    test('converted savings aggregate across currencies', () async {
+      final container = harness.container();
+      addTearDown(container.dispose);
+
+      final notifier =
+          container.read(subscriptionListControllerProvider.notifier);
+      // Cancelled $10/mo (USD) + cancelled 254,000 VND/mo (= $10).
+      await notifier.add(
+        sub(id: 'usd', amount: 1000, status: SubscriptionStatus.cancelled)
+            .copyWith(cancelledAt: DateTime.now()),
+      );
+      await notifier.add(
+        sub(
+          id: 'vnd',
+          amount: 254000,
+          currency: 'VND',
+          status: SubscriptionStatus.cancelled,
+        ).copyWith(cancelledAt: DateTime.now()),
+      );
+
+      final dashboard = await container.read(dashboardControllerProvider.future);
+      final controller = container.read(dashboardControllerProvider.notifier);
+      final converted = controller.savingsConverted(
+        dashboard.savings.projectedMonthly,
+        'USD',
+        rates,
+      );
+      // $10 + $10 → $20/month-equivalent → 2000 minor.
+      expect(converted, 2000);
+    });
+  });
 }

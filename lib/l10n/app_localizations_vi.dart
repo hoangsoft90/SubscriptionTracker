@@ -103,6 +103,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get dashboardYearly => 'Hàng năm';
 
   @override
+  String get dashboardConvertedNote =>
+      '≈ quy đổi sang tiền tệ chính theo tỷ giá hiện tại';
+
+  @override
   String get dashboardFiveYear => 'Chi phí 5 năm theo giá hiện tại';
 
   @override
@@ -469,6 +473,16 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get settingsCurrencyHint =>
       'Đổi sẽ nhóm lại tổng; số tiền hiện có giữ nguyên tiền tệ.';
+
+  @override
+  String get settingsExchangeRatesTitle => 'Tỷ giá hối đoái (dự phòng)';
+
+  @override
+  String get settingsExchangeRatesHint =>
+      'Dùng khi ngoại tuyến. Tỷ giá trực tuyến từ API miễn phí tự cập nhật khi có mạng.';
+
+  @override
+  String get settingsExchangeRatesSave => 'Lưu tỷ giá';
 
   @override
   String get settingsTheme => 'Giao diện';

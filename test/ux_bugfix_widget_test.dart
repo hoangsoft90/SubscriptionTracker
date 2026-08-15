@@ -152,7 +152,15 @@ void main() {
       await tester.tap(find.text('More'));
       await pumpUntilFound(tester, find.text('Settings'));
       await tester.tap(find.text('Settings'));
-      await pumpUntilFound(tester, find.text('Appearance'));
+      // Settings grew a manual exchange-rates section above Appearance — the
+      // row may sit below the fold on narrow screens, so scroll to it before
+      // asserting (lazy ListView doesn't build off-screen rows).
+      await pumpUntilFound(tester, find.text('Settings').first);
+      await tester.scrollUntilVisible(
+        find.text('Appearance'),
+        100,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.pump();
 
       // Implicit assertion: a squeezed SegmentedButton overflows → test fails.

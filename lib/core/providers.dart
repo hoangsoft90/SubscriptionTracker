@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../core/money/exchange_rates.dart';
 import '../core/notifications/coordinator.dart';
 import '../core/notifications/notification_platform.dart';
 import '../core/notifications/notification_scheduler.dart';
@@ -141,3 +144,72 @@ final notificationCoordinatorProvider = Provider<NotificationCoordinator>((ref) 
         : (await FlutterTimezone.getLocalTimezone()).identifier,
   );
 });
+
+// ---------------------------------------------------------------------------
+// Multi-currency (exchange rates for the Home report).
+// ---------------------------------------------------------------------------
+
+/// Result of loading exchange rates: the rates map (units per 1 USD) plus
+/// where they came from — live API (preferred) or the manual offline
+/// fallback. `live` is true only when a fresh live fetch succeeded.
+class ExchangeRatesResult {
+  const ExchangeRatesResult({
+    required this.rates,
+    required this.isLive,
+  });
+
+  final Map<String, double> rates;
+  final bool isLive;
+}
+
+/// Tries the live free API first, falling back to the manual rates on any
+/// failure (offline / API unreachable / unsupported platform). Manual rates
+/// come from the settings repo so the user's Settings edits take effect.
+final exchangeRatesProvider = FutureProvider<ExchangeRatesResult>((ref) async {
+  final settingsRepo = await ref.watch(settingsRepositoryProvider.future);
+  final manual = await _loadManualRates(settingsRepo);
+  if (!canFetchLive) {
+    return ExchangeRatesResult(rates: manual, isLive: false);
+  }
+  final live = await fetchLiveRates();
+  if (live.isNotEmpty) {
+    return ExchangeRatesResult(rates: live, isLive: true);
+  }
+  return ExchangeRatesResult(rates: manual, isLive: false);
+});
+
+/// The user-edited manual rates (units per 1 USD), merged over defaults —
+/// what the Settings screen edits and the offline fallback uses.
+final manualExchangeRatesProvider = FutureProvider<Map<String, double>>(
+  (ref) async {
+    final repo = await ref.watch(settingsRepositoryProvider.future);
+    return _loadManualRates(repo);
+  },
+);
+
+/// Loads the user-edited manual rates from settings (JSON), merging over the
+/// defaults so new currencies added later are always present.
+Future<Map<String, double>> _loadManualRates(SettingsRepository repo) async {
+  final raw = await repo.get('exchangeRates');
+  if (raw == null || raw.isEmpty) return Map.of(defaultManualExchangeRates);
+  try {
+    final decoded = jsonDecode(raw) as Map<String, dynamic>;
+    return {
+      ...defaultManualExchangeRates,
+      for (final e in decoded.entries) e.key: (e.value as num).toDouble(),
+    };
+  } catch (_) {
+    return Map.of(defaultManualExchangeRates);
+  }
+}
+
+/// Persists the user-edited manual exchange rates (units per 1 USD) as JSON
+/// in the settings repo. Returns the merged map that is now stored.
+Future<Map<String, double>> saveManualExchangeRates(
+  SettingsRepository repo,
+  Map<String, double> rates,
+) async {
+  final merged = {...defaultManualExchangeRates, ...rates};
+  await repo.set('exchangeRates', jsonEncode(merged));
+  return merged;
+}

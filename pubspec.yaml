@@ -55,6 +55,8 @@ dependencies:
   google_mobile_ads: ^9.0.0
   url_launcher: ^6.3.0
   app_settings: ^8.0.3
+  # Live exchange-rate fetch for the multi-currency Home report (free API).
+  http: ^1.5.0
 
 dev_dependencies:
   flutter_test:

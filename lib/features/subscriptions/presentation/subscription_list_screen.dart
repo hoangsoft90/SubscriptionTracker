@@ -45,6 +45,10 @@ class _SubscriptionListScreenState extends ConsumerState<SubscriptionListScreen>
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.subscriptionsTitle)),
+      // Banner lives in the bottomNavigationBar slot (not the body Column)
+      // so the FAB's default endFloat position floats ABOVE it instead of
+      // overlapping it. Renders nothing while loading (no reserved space).
+      bottomNavigationBar: showAds ? const BannerAdView() : null,
       floatingActionButton: DisabledStateHelper(
         // At the hard limit, adding is blocked. The helper keeps the FAB
         // visibly disabled but explains why + how to unlock when tapped.
@@ -144,7 +148,7 @@ class _SubscriptionListScreenState extends ConsumerState<SubscriptionListScreen>
                             .read(subscriptionListControllerProvider.notifier)
                             .reload(),
                         child: ListView.builder(
-                          padding: const EdgeInsets.only(bottom: 88),
+                          padding: const EdgeInsets.only(bottom: 16),
                           physics: const AlwaysScrollableScrollPhysics(),
                           itemCount: visible.length,
                           itemBuilder: (context, index) {
@@ -154,8 +158,6 @@ class _SubscriptionListScreenState extends ConsumerState<SubscriptionListScreen>
                         ),
                       ),
               ),
-              // Free tier only: adaptive banner above the bottom nav (Pro: none).
-              if (showAds) const BannerAdView(),
             ],
           );
         },
@@ -199,12 +201,15 @@ class _SubscriptionTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           // Long amounts (e.g. VND) must ellipsize inside the ListTile
-          // trailing — otherwise the tile overflows to the right.
+          // trailing — otherwise the tile overflows to the right. The ISO
+          // code is shown so a multi-currency list never reads as a bare
+          // number (e.g. "99,999 VND" vs just "99,999").
           ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 110),
+            constraints: const BoxConstraints(maxWidth: 140),
             child: MoneyText(
               Money(sub.amountMinor, sub.currency),
               style: theme.textTheme.titleSmall,
+              currencyCode: true,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

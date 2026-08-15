@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:subtrack/app/app.dart';
+import 'package:subtrack/features/subscriptions/domain/billing_cycle.dart';
+import 'package:subtrack/features/subscriptions/domain/subscription.dart';
+import 'package:subtrack/features/subscriptions/domain/subscription_status.dart';
 
 import 'm1_widget_test.dart' show pumpUntilFound;
 import 'widget_harness.dart';
@@ -116,5 +119,36 @@ void main() {
 
     expect(find.byType(RefreshIndicator), findsOneWidget);
     expect(find.text('Netflix'), findsOneWidget);
+  });
+
+  testWidgets('list rows show the currency code next to the amount '
+      '(multi-currency fix)', (tester) async {
+    // $14.99 USD — the tile must render the ISO code, not a bare number.
+    final harness = WidgetHarness(
+      subscriptions: [
+        Subscription(
+          id: 'netflix',
+          name: 'Netflix',
+          amountMinor: 1499,
+          currency: 'USD',
+          billingCycle: BillingCycle.monthly,
+          startDate: DateTime(2026, 1, 1),
+          nextBillingDate: DateTime(2026, 8, 15),
+          billingAnchorDay: 1,
+          isTrial: false,
+          status: SubscriptionStatus.active,
+          createdAt: DateTime(2026, 1, 1),
+          updatedAt: DateTime(2026, 1, 1),
+        ),
+      ],
+    );
+
+    await pumpApp(tester, harness);
+    await tester.tap(find.text('Subscriptions'));
+    await tester.pumpAndSettle();
+
+    // MoneyText renders "14.99 USD" (currency code appended) — the bare
+    // "14.99" without any currency marker must not appear.
+    expect(find.text('14.99 USD'), findsOneWidget);
   });
 }

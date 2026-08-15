@@ -266,6 +266,12 @@ abstract class AppLocalizations {
   /// **'Yearly'**
   String get dashboardYearly;
 
+  /// No description provided for @dashboardConvertedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ converted to your primary currency at current exchange rates'**
+  String get dashboardConvertedNote;
+
   /// No description provided for @dashboardFiveYear.
   ///
   /// In en, this message translates to:
@@ -925,6 +931,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Changing it regroups totals; existing amounts keep their own currency.'**
   String get settingsCurrencyHint;
+
+  /// No description provided for @settingsExchangeRatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange rates (fallback)'**
+  String get settingsExchangeRatesTitle;
+
+  /// No description provided for @settingsExchangeRatesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used when offline. Live rates from the free API update automatically when online.'**
+  String get settingsExchangeRatesHint;
+
+  /// No description provided for @settingsExchangeRatesSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save rates'**
+  String get settingsExchangeRatesSave;
 
   /// No description provided for @settingsTheme.
   ///
