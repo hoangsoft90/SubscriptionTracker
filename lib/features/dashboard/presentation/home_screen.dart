@@ -9,8 +9,6 @@ import '../../../core/money/money.dart';
 import '../../../core/providers.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/money_text.dart';
-import '../../ads/ads_controller.dart';
-import '../../ads/presentation/banner_ad_view.dart';
 import '../../decision/review_queue.dart';
 import '../../decision/today_brief.dart';
 import '../../guidance/application/guidance_controller.dart';
@@ -41,7 +39,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final primary =
         ref.watch(settingsControllerProvider).value?.primaryCurrency ?? 'USD';
     final exchangeRates = ref.watch(exchangeRatesProvider).value;
-    final showAds = ref.watch(showAdsProvider);
     final calendarSeen =
         ref.watch(guidanceControllerProvider).value?.completedStepIds
                 .contains('home.calendar') ??
@@ -72,10 +69,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       child: Scaffold(
         appBar: AppBar(title: Text(l10n.appName)),
-        // Banner lives in the bottomNavigationBar slot (not the body Column)
-        // so it can never collapse the scrollable above it and the FAB
-        // (where present) floats above it. Renders nothing while loading.
-        bottomNavigationBar: showAds ? const BannerAdView() : null,
         body: Column(
           children: [
             Expanded(

@@ -5,9 +5,11 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../ads_config.dart';
 import '../ads_controller.dart';
 
-/// Anchored adaptive banner pinned at the bottom of a tab (free tier only;
-/// Pro removes ads). Renders nothing on web and in widget tests, and nothing
-/// while the ad is still loading — the layout never reserves space for ads.
+/// Anchored adaptive banner pinned directly above the NavigationBar in the
+/// app shell (free tier only; Pro removes ads). Renders nothing on web and
+/// in widget tests, and nothing while the ad is still loading — the layout
+/// never reserves space for ads. No bottom SafeArea: the NavigationBar below
+/// already handles the system bottom inset, so the banner sits flush.
 class BannerAdView extends ConsumerStatefulWidget {
   const BannerAdView({super.key});
 
@@ -88,16 +90,16 @@ class _BannerAdViewState extends ConsumerState<BannerAdView> {
     // list on the same screen gets h=0 and renders nothing while the data is
     // actually there (the "list sometimes empty" bug).
     if (size == null) return const SizedBox.shrink();
-    return SafeArea(
-      top: false,
-      child: Container(
-        width: double.infinity,
-        color: Theme.of(context).colorScheme.surface,
-        child: SizedBox(
-          width: size.width.toDouble(),
-          height: size.height.toDouble(),
-          child: AdWidget(ad: banner),
-        ),
+    // No SafeArea wrapper — the NavigationBar directly below in the shell
+    // consumes the system bottom inset, so a bottom SafeArea here would
+    // create a visible gap between the banner and the nav buttons.
+    return Container(
+      width: double.infinity,
+      color: Theme.of(context).colorScheme.surface,
+      child: SizedBox(
+        width: size.width.toDouble(),
+        height: size.height.toDouble(),
+        child: AdWidget(ad: banner),
       ),
     );
   }

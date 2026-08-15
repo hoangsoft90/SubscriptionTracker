@@ -6,8 +6,6 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/money/money.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/money_text.dart';
-import '../../ads/ads_controller.dart';
-import '../../ads/presentation/banner_ad_view.dart';
 import '../../guidance/presentation/disabled_state_helper.dart';
 import '../../paywall/entitlement_controller.dart';
 import '../../paywall/free_tier.dart';
@@ -36,7 +34,6 @@ class _SubscriptionListScreenState extends ConsumerState<SubscriptionListScreen>
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final listState = ref.watch(subscriptionListControllerProvider);
-    final showAds = ref.watch(showAdsProvider);
     final isPro = ref.watch(proEntitlementControllerProvider).value ?? false;
     final slotCount = listState.value == null
         ? 0
@@ -45,10 +42,6 @@ class _SubscriptionListScreenState extends ConsumerState<SubscriptionListScreen>
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.subscriptionsTitle)),
-      // Banner lives in the bottomNavigationBar slot (not the body Column)
-      // so the FAB's default endFloat position floats ABOVE it instead of
-      // overlapping it. Renders nothing while loading (no reserved space).
-      bottomNavigationBar: showAds ? const BannerAdView() : null,
       floatingActionButton: DisabledStateHelper(
         // At the hard limit, adding is blocked. The helper keeps the FAB
         // visibly disabled but explains why + how to unlock when tapped.

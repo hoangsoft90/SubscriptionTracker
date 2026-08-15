@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/l10n/l10n.dart';
+import '../../features/ads/ads_controller.dart';
+import '../../features/ads/presentation/banner_ad_view.dart';
 import '../../features/backup/presentation/backup_screen.dart';
 import '../../features/calendar/presentation/money_calendar_screen.dart';
 import '../../features/categories/presentation/categories_screen.dart';
@@ -230,28 +232,39 @@ class _AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final showAds = ref.watch(showAdsProvider);
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: (index) => navigationShell.goBranch(
-          index,
-          initialLocation: index == navigationShell.currentIndex,
-        ),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home),
-            label: l10n.tabHome,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.list_alt_outlined),
-            selectedIcon: const Icon(Icons.list_alt),
-            label: l10n.tabSubscriptions,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.more_horiz),
-            label: l10n.tabMore,
+      // Banner sits directly ABOVE the NavigationBar (same Column) so it is
+      // flush against the nav buttons on every tab — no SafeArea gap, no
+      // overlap with the FAB (which floats above this Column). Renders
+      // nothing while loading / for Pro (no reserved space).
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showAds) const BannerAdView(),
+          NavigationBar(
+            selectedIndex: navigationShell.currentIndex,
+            onDestinationSelected: (index) => navigationShell.goBranch(
+              index,
+              initialLocation: index == navigationShell.currentIndex,
+            ),
+            destinations: [
+              NavigationDestination(
+                icon: const Icon(Icons.home_outlined),
+                selectedIcon: const Icon(Icons.home),
+                label: l10n.tabHome,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.list_alt_outlined),
+                selectedIcon: const Icon(Icons.list_alt),
+                label: l10n.tabSubscriptions,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.more_horiz),
+                label: l10n.tabMore,
+              ),
+            ],
           ),
         ],
       ),
