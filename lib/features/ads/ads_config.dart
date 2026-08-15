@@ -52,6 +52,17 @@ class AdConfig {
       'ca-app-pub-3940256099942544/1033173712';
   static const String _testRewarded = 'ca-app-pub-3940256099942544/5224354917';
 
+  /// Physical test devices registered for test ads. While the real ad units
+  /// are still new/unpublished (NO_FILL until activated + live traffic),
+  /// Google serves test ads to these device IDs so the banner/interstitial
+  /// flow can be verified on a real phone. Test ads show only on these exact
+  /// devices — everyone else still gets real ads. Remove entries here once
+  /// the app is published and real ads start filling.
+  static const List<String> testDeviceIds = [
+    // Pixel 3a (dev phone, 2026-08-15) — printed by the AdMob SDK at init.
+    'C1D6E94F7B5739F934186905CC65759A',
+  ];
+
   /// Rewarded ad unit — not wired into any flow yet (reserved for a future
   /// rewarded-earn feature; kept here so the ID is discoverable in one place).
   static String get rewardedUnitId =>

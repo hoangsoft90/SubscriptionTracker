@@ -2,6 +2,13 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## Test device registration — ads vẫn NO_FILL vì app chưa publish (2026-08-15)
+
+- [2026-08-15] Sau khi bật `enable_ads=true` & `test_ads=false`, test trên phone thật (Pixel 3a, cả 2 APK: `ee4b96d` 15:47 + build mới 17:17) → **vẫn `Ad failed to load : 3` (NO_FILL)** dù SDK init OK (`MAIN: ads supported`, DynamiteModule selected, `Not retrying to fetch app settings` — app ID hợp lệ, network OK).
+- [2026-08-15] **Đính chính giả thuyết cũ**: user xác nhận lúc tạo AdMob app KHÔNG khai báo package (vì chưa publish) → "package mismatch com.subguard.app" KHÔNG còn là nguyên nhân (đã ghi sai trong session trước, đính chính trong câu trả lời).
+- [2026-08-15] **Nguyên nhân thật** (theo chính log AdMob): ad unit mới + app chưa publish + chưa có traffic → Google KHÔNG fill ads thật (cơ chế chống gian lận; ad unit cần được activate + demand từ app live). Bằng chứng: SDK in hint `Use RequestConfiguration.Builder().setTestDeviceIds(...C1D6E94F7B5739F934186905CC65759A...) to get test ads on this device`.
+- [2026-08-15] Xong fix: `ads_config.dart` thêm `AdConfig.testDeviceIds = ['C1D6E94F7B5739F934186905CC65759A']` (Pixel 3a dev); `main.dart` chuyển `Future<void> main() async` + sau `await MobileAds.instance.initialize()` gọi `updateRequestConfiguration(RequestConfiguration(testDeviceIds: ...))` → cùng ad unit thật, đúng phone này nhận **test ads fill 100%** (label "Test Ad"), device khác vẫn ads thật; comment ghi rõ xóa entry sau khi publish + ads thật fill. Verify: `flutter analyze` 0 issues; `ads_test` + `banner_layout_test` **10/10 pass**. Commit + push `main` → GH Actions debug APK tự trigger.
+
 ## Bật lại ads thật — enable_ads=true & test_ads=false (2026-08-15)
 
 - [2026-08-15] User yêu cầu: (1) set `enable_ads=true` & `test_ads=false` để bật lại ads THẬT; (2) push + trigger GH Actions build debug APK để test.

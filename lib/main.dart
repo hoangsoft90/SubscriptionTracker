@@ -7,7 +7,7 @@ import 'core/notifications/reboot_rescheduler.dart';
 import 'core/storage/database_factory.dart';
 import 'features/ads/ads_config.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   debugPrint('MAIN: start');
   // Web has no sqflite plugin — install the WASM-backed factory first.
@@ -23,8 +23,17 @@ void main() {
   // No-op on web and in widget tests (see AdConfig.supported).
   if (AdConfig.supported) {
     debugPrint('MAIN: ads supported, initializing');
-    MobileAds.instance.initialize();
+    await MobileAds.instance.initialize();
     debugPrint('MAIN: ads init called');
+    // Register physical test devices so real unit IDs fill with test ads
+    // while the app is still unpublished (AdMob returns NO_FILL otherwise).
+    // Test ads appear only on these exact devices; other devices get real ads.
+    if (AdConfig.testDeviceIds.isNotEmpty) {
+      await MobileAds.instance.updateRequestConfiguration(
+        RequestConfiguration(testDeviceIds: AdConfig.testDeviceIds),
+      );
+      debugPrint('MAIN: test devices registered');
+    }
   } else {
     debugPrint('MAIN: ads not supported');
   }

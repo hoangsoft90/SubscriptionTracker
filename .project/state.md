@@ -20,12 +20,13 @@
 | — | Platform config (targetSdk 36, network_security_config, package `com.hoangsoft.subtrack`) | — | ✅ Hoàn thành (2026-08-11/15) |
 | — | `enable_ads=false` mặc định (dart-define `ENABLE_ADS`) + Due-alert dialog (1 lần/ngày) | — | ✅ Hoàn thành (2026-08-15) |
 | — | Bật lại ads THẬT: `enable_ads=true` + `test_ads=false` mặc định (test trên phone) | — | ✅ Hoàn thành (2026-08-15) |
+| — | Test-device registration (NO_FILL vì app chưa publish → test ads trên Pixel 3a) | — | ✅ Hoàn thành (2026-08-15) |
 
 ## Test status (2026-08-15)
 
 - **258/258 tests pass** ✓ (257 cũ + 1 mới `decision_engine_widget_test.dart`: renewal today → hiển thị sub, không "You're clear")
 - `flutter analyze` — **No issues found** ✓
-- GH Actions: tách 2 workflow — `build-debug-apk.yml` (debug APK, no keystore, push main) + `build-release-aab.yml` (release AAB ký thật từ GitHub Secrets, manual). Run debug mới nhất (chứa banner shell fix + 3 code-review fixes) đang build.
+- GH Actions: tách 2 workflow — `build-debug-apk.yml` (debug APK, no keystore, push main) + `build-release-aab.yml` (release AAB ký thật từ GitHub Secrets, manual). Run debug mới nhất (chứa test-device registration) đang build.
 - OpenSpec: **8/8 changes validate pass** (7 cũ + `subtrack-store-listing`).
 
 Phân bổ tests (chính):
@@ -50,14 +51,28 @@ Phân bổ tests (chính):
       dùng code-reviewer + review mặc định.
 5. [ ] Sync/archive OpenSpec change cũ vào `openspec/specs/` khi có nhu cầu.
 6. [x] Đã bật ads thật (`enable_ads=true`, `test_ads=false`) 2026-08-15 để test trên phone.
-      **CÒN NỢ**: ad unit ID thật đang đăng ký cho package CŨ `com.subguard.app` —
-      trước khi chạy production nên tạo AdMob app mới cho `com.hoangsoft.subtrack`
-      + thay ID trong `ads_config.dart` (nếu test thấy "No fill" thì do cái này).
+      **ĐÃ ĐÍNH CHÍNH**: user xác nhận KHÔNG khai báo package khi tạo AdMob app (chưa
+      publish) → giả thuyết "package mismatch com.subguard.app" sai, không cần đổi ID.
+      **Nguyên nhân thật**: ad unit mới + app chưa publish + chưa traffic → Google
+      NO_FILL. **Đã fix tạm**: đăng ký test device `C1D6E94F7B5739F934186905CC65759A`
+      (Pixel 3a) trong `AdConfig.testDeviceIds` + `updateRequestConfiguration` ở
+      `main.dart` → test ads fill 100% trên đúng phone này (khác device vẫn ads thật);
+      xóa entry sau khi publish + ads thật bắt đầu fill.
 7. [ ] (publish store) Chạy workflow `build-release-aab.yml` (manual) để sinh AAB
       ký thật submit Play Store.
 
 ## Ghi chú phiên gần đây
 
+- **2026-08-15 (test-device registration)**: Test 2 APK (ee4b96d + build mới 17:17)
+  trên Pixel 3a → **vẫn `Ad failed to load : 3` (NO_FILL)** dù SDK init OK, app ID hợp
+  lệ (log `Not retrying to fetch app settings`), network OK. Đính chính: user KHÔNG
+  khai báo package khi tạo AdMob (chưa publish) → bỏ giả thuyết package mismatch.
+  Nguyên nhân thật: ad unit mới/chưa activate + app chưa publish → Google không fill
+  ads thật (SDK in hint đăng ký test device). Fix: `AdConfig.testDeviceIds =
+  ['C1D6E94F7B5739F934186905CC65759A']` + `main.dart` async + `await initialize()` +
+  `updateRequestConfiguration(testDeviceIds)` → test ads trên đúng phone này, device
+  khác vẫn ads thật; xóa entry khi publish xong. Verify: analyze 0, ads+banner 10/10.
+  Xem `working.md` mục "Test device registration…" 2026-08-15.
 - **2026-08-15 (bật lại ads thật)**: `AdConfig.enabled` default false → **true**,
   `AdConfig.testAds` default true → **false** — mọi build giờ dùng ad unit ID THẬT
   (`ca-app-pub-6917313063209470...`). Test `ads_test.dart` assert default mới.
