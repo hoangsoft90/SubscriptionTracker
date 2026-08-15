@@ -2,6 +2,17 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## Privacy email + full code review (2026-08-15)
+
+- [2026-08-15] User yêu cầu: (1) đổi email trong privacy policy thành `haibasoftware@gmail.com`; (2) review toàn bộ code tìm lỗi UI/logic/crash.
+- [2026-08-15] Xong #1: `docs/privacy-policy.md` + `.html` contact email `hoangsoft90@gmail.com` → `haibasoftware@gmail.com` (mailto, EN+VI). Redeploy gh-pages `8bca378` → live (HTTP 200).
+- [2026-08-15] Xong #2 — full code review 83 files lib/ (13k lines), rà từng tầng: domain (Subscription/Billing/Money/Savings/ReviewQueue/TodayBrief/MoneyCalendar), storage (sqflite + localStorage + migrations + seeders), notifications (scheduler/coordinator/permission/platform), ads (banner/interstitial), backup (export/import), IAP (gateway/paywall/entitlement), guidance (host/spotlight/tooltip), router/nav, mọi presentation screen. **Tìm + fix 3 lỗi thật:**
+  - **UI copy bug**: paywall purchase/restore FAILURE hiện "This file is not a SubTrack backup." (dùng nhầm `backupErrorInvalidFile`) → thêm key `paywallError` EN+VI ("Purchase couldn't be completed…") dùng cho cả `_purchase` + `_restore`.
+  - **Logic inconsistency**: paywall "N of 10 slots used" chỉ đếm ACTIVE, trong khi gate add-form đếm ACTIVE + PENDING_CANCELLATION (`paywallSlotCount`) → dùng `paywallSlotCount` để số hiển thị luôn khớp gate (9 active + 1 pending-cancellation trước đây hiện "9/10" nhưng bị block khi add).
+  - **i18n**: lỗi nhập tỷ giá trong Settings hiện chuỗi English hardcode "invalid rate" → key `settingsExchangeRatesInvalid` EN+VI.
+- [2026-08-15] Đã verify các vùng rủi ro KHÔNG có bug: `.first`/`!` đều có guard (getById/isEmpty, pending preset empty-check, purchase productDetails empty-check, fromMap chỉ chạy khi validate import); backup import bọc try/catch (từ 2026-08-13) + apply cũng try/catch; money tính integer minor units không float; exchange rate thiếu rate → null (không bịa); conversion guard `allActiveConvertible`; scheduler deterministic ids + group cap; localStorage đọc corrupt-safe; nav/recovery/guidance geometry đã test. Không có crash-path mới.
+- [2026-08-15] Verify: `flutter gen-l10n` + `flutter analyze` 0 issues; `flutter test` **247/247 pass** (l10n regen không phá test nào). Commit `d4582f9` push `main` — GH Actions debug APK tự trigger (build APK mới chứa fixes).
+
 ## Privacy policy bỏ GitHub repo + banner flush nav + icon/feature graphic (2026-08-15)
 
 - [2026-08-15] User yêu cầu 4 việc: (1) update privacy policy — nội dung KHÔNG nhắc tới GitHub repo; (2) banner ads đang "chênh vênh", chưa sát bottom nav buttons — sửa cho chạm gần nav; (3) tạo App Icon `icon.png` 512×512 (đã có từ trước — verify lại OK); (4) tạo Feature Graphic 1024×500.
