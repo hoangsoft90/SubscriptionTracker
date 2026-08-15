@@ -1,6 +1,6 @@
 # State (trạng thái hiện tại)
 
-> Cập nhật lần cuối: 2026-08-12 (phiên: Guidance feature + Review fixes + OpenSpec).
+> Cập nhật lần cuối: 2026-08-15 (phiên: Ads + Multi-currency + Release infra + OpenSpec).
 > File này đổi thường xuyên — dùng ISO date `YYYY-MM-DD` cho mọi mục.
 > Chi tiết theo ngày ở `working.md`; quy tắc code ở `ai-rules.md`.
 
@@ -13,52 +13,65 @@
 | M2 | `subtrack-platform-store` | 116/116 tests | ✅ Hoàn thành (notifications, backup, IAP, i18n, privacy) |
 | M2.5 | `subtrack-decision-engine` | 30 tasks | ✅ Hoàn thành (brief, queue, savings, calendar, price-history, lifecycle) |
 | — | Storage platform split (web localStorage) | 175/175 tests | ✅ Hoàn thành (2026-08-10) |
-| — | Guidance + Review fixes | `subtrack-guidance` (mới) | ✅ Hoàn thành (2026-08-12) |
-| — | Platform config (targetSdk 36, network_security_config, package) | — | ✅ Hoàn thành (2026-08-11/12) |
+| — | Guidance + Review fixes | `subtrack-guidance` | ✅ Hoàn thành (2026-08-12) |
+| — | Ads + Multi-currency + Release infra + Display reliability | `subtrack-monetization-release` | ✅ Hoàn thành (2026-08-15, retrospective) |
+| — | Platform config (targetSdk 36, network_security_config, package `com.hoangsoft.subtrack`) | — | ✅ Hoàn thành (2026-08-11/15) |
 
-## Test status (2026-08-13)
+## Test status (2026-08-15)
 
-- **216/216 tests pass** ✓ (203 + 8 `ads_test` + 5 nav mới)
+- **247/247 tests pass** ✓
 - `flutter analyze` — **No issues found** ✓
-- GH Actions `build-apk.yml`: APK + AAB build success (run `31662555768`) — artifact `subtrack-release-apk` (32MB) + `subtrack-release-aab` (66.8MB).
+- GH Actions: tách 2 workflow — `build-debug-apk.yml` (debug APK, no keystore, push main) + `build-release-aab.yml` (release AAB ký thật từ GitHub Secrets, manual). Run debug mới nhất cho package mới đang build.
 
 Phân bổ tests (chính):
-- Core: `money_test`, `billing_calculator_test`, `data_storage_test`, `local_storage_repository_test` (web storage), `backup_test`, `notifications_test`, `l10n_test`, `ads_test` (8: cooldown/frequency policy + test-ads mode)
-- Nav: `navigation_deep_link_test` (10: not-found recovery, /calendar /paywall deep link Home, /more/categories, onboarding restore, **root path → Home, /more/settings /more/backup /subscriptions/add /subscriptions/:id/edit back**)
-- Controller: `subscription_list_controller_test`, `dashboard_controller_test`, `free_tier_test`, `decision_engine_test`
-- Widget: `m1_widget_test`, `m1_crud_widget_test`, `m1_support`/`widget_harness`/`fakes`, `decision_engine_widget_test`, `ux_bugfix_widget_test`, `navigation_deep_link_test`, `guidance_test` (19), `subscription_detail_test` (2)
-- `integration_test/`: `device_ux_test`, `privacy_network_test`, `probe_test`
+- Core: `money_test`, `billing_calculator_test`, `data_storage_test`, `local_storage_repository_test` (web storage), `backup_test`, `notifications_test`, `l10n_test`, `ads_test` (8: cooldown/frequency policy + test-ads default true), **`exchange_rates_test`** (conversion USD-pivot, missing-rate null, sumConvertedTo, defaults)
+- Nav: `navigation_deep_link_test` (10)
+- Controller: `subscription_list_controller_test`, `dashboard_controller_test` (+3 multi-currency), `free_tier_test`, `decision_engine_test`
+- Widget: `m1_widget_test`, `m1_crud_widget_test`, `widget_harness`/`fakes`, `decision_engine_widget_test`, `ux_bugfix_widget_test`, `guidance_test` (19), `subscription_detail_test` (2), **`subscription_display_test`** (display/refresh/currency), **`banner_layout_test`** (2: ad placeholder collapse → SizedBox fix), **`real_db_add_flow_test`** (real sqflite integration), **`web_storage_flow_test`** (localStorage layer)
+- `integration_test/`: `device_ux_test` (package `com.hoangsoft.subtrack`), `privacy_network_test`, `probe_test`
 
 ## Todo mở (next steps)
 
-1. [x] **Commit** toàn bộ code M0→nay — **đã push 2026-08-13** lên
-      `github.com/hoangsoft90/SubscriptionTracker` (commit `a746af6`, branch `main`).
+1. [x] **Commit** toàn bộ code — đã push lên `main` nhiều lần (mới nhất 2026-08-15).
 2. [ ] Manual device tests còn lại (đã ghi trong platform-store tasks):
       backup reinstall restore (2.6), IAP sandbox (3.5), privacy network on-device (5.2).
-3. [ ] Manual walkthrough M1 (task 7.3) — add <25s, dashboard totals khớp list.
+3. [ ] Cài APK mới (package `com.hoangsoft.subtrack`) lên máy thật + test lại:
+      add → 2 tab update ngay, pull-down giữ data, chờ ad load list vẫn hiển thị,
+      FAB không bị banner che.
 4. [ ] OCR (open-code-review) đang lỗi 401 config — cần user sửa; fallback hiện
       dùng code-reviewer + review mặc định.
-5. [ ] Sync/archive 4 OpenSpec change cũ (core-engine, core-ux, platform-store,
-      decision-engine) vào `openspec/specs/` khi có nhu cầu.
-6. [ ] Fix MEDIUM còn lại từ review (đã liệt kê, chưa làm): #8 monthlyByCurrency
-      chưa dùng ở Home, #9 merge FK edge case, #10 interstitial preload hết hạn,
-      #11 Money.parse VND "12.5" → 125 (behavior có chủ đích).
-7. [ ] (nếu publish store) Thêm signing config release thật vào
-      `android/app/build.gradle.kts` — hiện release dùng debug signing (APK CI để test nội bộ).
+5. [ ] Sync/archive OpenSpec change cũ vào `openspec/specs/` khi có nhu cầu.
+6. [ ] Trước khi bật ads thật (test_ads=false): tạo AdMob app mới cho package
+      `com.hoangsoft.subtrack` + thay ID trong `ads_config.dart`.
+7. [ ] (publish store) Chạy workflow `build-release-aab.yml` (manual) để sinh AAB
+      ký thật submit Play Store.
 
 ## Ghi chú phiên gần đây
 
-- **2026-08-12**: In-app Guidance & User Onboarding — feature `lib/features/guidance/`
-  (FeatureBadge, SpotlightOverlay + tooltip_geometry, DisabledStateHelper, GuidanceHost,
-  GuidanceController persist `app_settings`), wire Home (tour 2 steps + "New" badge) +
-  Subscriptions FAB (DisabledStateHelper khi free-tier hard block). L10n EN+VI.
-  **Review toàn bộ code** (3 reviewer + verify trực tiếp, loại false positives) →
-  fix 7 lỗi HIGH/MEDIUM: FK crash Replace All (real sqlite test), Monthly Cost
-  monthly-equivalent, detail hiện tên category, formatDate locale-aware (VI dd/MM),
-  import → notification reconcile, lifecycle transition → invalidate UI providers,
-  StatusChip ellipsis. **203/203 tests pass**. Tạo OpenSpec change `subtrack-guidance`
-  (retrospective, 2 capability: in-app-guidance + review-bugfixes) — validate 5/5.
-  Xem `working.md` mục 2026-08-12.
+- **2026-08-15**: Ads + Multi-currency + Release infra + Display reliability
+  (retrospective OpenSpec `subtrack-monetization-release`):
+  - `testAds` default true (tránh AdMob limit tài khoản chưa duyệt); interstitial
+    frequency (mỗi 5 add) + cooldown 5 phút; banner fix layout (SizedBox AdSize —
+    platform-view infinite height từng làm list collapse) + chuyển banner sang
+    `bottomNavigationBar` (FAB không bị đè).
+  - Multi-currency: `lib/core/money/exchange_rates.dart` (USD-pivot, exact int
+    math, null khi thiếu rate), live API open.er-api.com + manual fallback trong
+    Settings (`_ExchangeRatesSection`), Home headline convert về primary + breakdown
+    từng currency + note "≈"; list hiển thị ISO code. Dep mới `http`.
+  - Release infra: package `com.subguard.app` → `com.hoangsoft.subtrack` (Android
+    + iOS + google-services.json + comments), targetSdk 36, tách 2 GH workflows,
+    keystore vào GitHub Secrets (4 secrets), privacy policy trên gh-pages.
+  - Display reliability: `reload()` null-safe (mutation race initial build),
+    invalidate dashboard sau mọi mutation (Home update ngay), pull-to-refresh list,
+    notification permission UI trong Settings.
+  - Verify: analyze 0 issues, **247/247 tests pass**, validate openspec 6/6.
+  Xem `working.md` mục 2026-08-15.
+- **2026-08-13/14**: Home stale fix (invalidate dashboard sau mutation),
+  notification permission UI, nav rà soát + safe back + web warnings sạch,
+  privacy policy + gh-pages, ads test mode + cooldown + full code review
+  (fix crash backup import + localStorage price-history), banner collapse root
+  cause device (AdMob platform view infinite height), pull-to-refresh subscriptions.
+  Xem `working.md` mục 2026-08-13/14.
 - **2026-08-11**: Package `com.subguard.app` (ban đầu) + AdMob ID thật (app
   `ca-app-pub-6917313063209470~5291822252`; banner/interstitial trong `ads_config.dart`,
   App ID AndroidManifest + Info.plist). Test device thật: init OK, banner "No fill"

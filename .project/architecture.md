@@ -51,6 +51,14 @@ SQLite (mobile, PRAGMA user_version v2)  |  localStorage (web)
 - **Providers** (`lib/core/providers.dart`): `databaseProvider` (giữ cho test),
   `storageBackendProvider` → 3 `FutureProvider` repository; thêm wiring
   notifications (scheduler/coordinator/permission), IAP gateway, guidance.
+- **Multi-currency (2026-08-15)**: `lib/core/money/exchange_rates.dart` — pure
+  core (units/1-USD pivot, `convertMinorToPrimary` null khi thiếu rate — không
+  bịa, `fetchLiveRates` qua open.er-api.com, `defaultManualExchangeRates`,
+  `canFetchLive=false` khi test/web). Providers: `exchangeRatesProvider`
+  (FutureProvider: live thắng, fallback manual) + `manualExchangeRatesProvider`
+  + `saveManualExchangeRates` (persist JSON vào settings repo). Dashboard
+  controller expose `monthlyTotalConverted`/`yearlyTotalConverted`; Home
+  headline convert về primary + breakdown từng currency (l10n `dashboardConvertedNote`).
 - **Controller pattern**: `AsyncNotifier.build()` await repo → state; mọi action
   (add/edit/delete/setStatus) gọi repo rồi `state = AsyncData(...)` hoặc `reload()`.
 - `SubscriptionListController` giữ toàn bộ list trong state; `visible` getter áp

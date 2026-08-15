@@ -2,6 +2,12 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## OpenSpec retrospective + docs refresh .project/ (2026-08-15)
+
+- [2026-08-15] User yêu cầu: (1) cập nhật openspec cho toàn bộ work đã ship từ sau change cuối `subtrack-guidance` (2026-08-12); (2) tuân thủ `.project/ai-rules.md` cập nhật `.project/` (state.md/working.md/architecture.md) theo trạng thái mới.
+- [2026-08-15] Xong OpenSpec: tạo change retrospective **`subtrack-monetization-release`** — `proposal.md` (Why/What/Impact) + 4 specs đúng format delta (`## ADDED Requirements` + `### Requirement:` + `#### Scenario:`): `ads-monetization` (test ads default, interstitial frequency+cooldown, banner layout SizedBox AdSize, banner trong bottomNavigationBar FAB-safe), `multi-currency-report` (USD-pivot conversion, live API + manual fallback, converted Home headline + breakdown, currency codes), `release-infra` (package rename `com.hoangsoft.subtrack`, targetSdk 36, split GH workflows, keystore secrets, privacy policy gh-pages), `display-reliability` (null-safe reload, dashboard invalidation, pull-to-refresh 2 tab, notification permission Settings) + `tasks.md` retrospective all [x]. Verify: `openspec validate --changes` **6/6 pass**. Commit + push **`f4329eb`** lên `main` (docs-only, debug APK workflow tự trigger).
+- [2026-08-15] Xong docs refresh theo `ai-rules.md`: `state.md` (milestone `subtrack-monetization-release` + test 247/247 + todo mở + session notes 08-15), `architecture.md` (thêm mục Multi-currency — `exchange_rates.dart` + providers + dashboard/Home wiring), `working.md` (mục này). Lưu ý: working.md giữ đầy đủ các phiên 08-13 → 08-15 (ghi trong commit trước); mục OpenSpec trước đó thiếu, giờ đã bổ sung.
+
 ## Split GH workflows + đổi package com.subguard.app → com.hoangsoft.subtrack (2026-08-15)
 
 - [2026-08-15] User yêu cầu: (1) tách GH workflow thành 2 cái — debug APK (no keystore) riêng, release AAB (with keystore) riêng; (2) package `com.subguard.app` đã tồn tại → đổi sang package khác (user chọn `com.hoangsoft.subtrack` qua ask_user).
