@@ -60,6 +60,10 @@ class AdConfig {
   /// the app is published and real ads start filling.
   static const List<String> testDeviceIds = [
     // Pixel 3a (dev phone, 2026-08-15) — printed by the AdMob SDK at init.
+    // The device's advertising ID rotated on 2026-08-15 (17:21 C1D6... →
+    // 21:48 9E19...) which changed its test-device ID; keep BOTH so test ads
+    // keep working whichever ID the device currently reports.
+    '9E19A0CAF5DAFB7BD0E3B151B5495FD7',
     'C1D6E94F7B5739F934186905CC65759A',
   ];
 

@@ -2,6 +2,13 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## Test device ID đã đổi — đăng ký 2 ID (2026-08-15)
+
+- [2026-08-15] User cài APK mới (commit `43a863c`, cài 17:44, có test-device registration) lên Pixel 3a thật → **vẫn không thấy ads**. Debug qua logcat (clear + force-stop + relaunch 21:48):
+  - `MAIN: ads supported, initializing` + `MAIN: test devices registered` → code chạy đúng (ads bật, registration thực thi).
+  - SDK in hint **`Use RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("9E19A0CAF5DAFB7BD0E3B151B5495FD7")) to get test ads on this device`** — **test device ID của máy ĐÃ ĐỔI**: lúc 17:21 Google in `C1D6E94F7B5739F934186905CC65759A`, lúc 21:48 in `9E19A0CAF5DAFB7BD0E3B151B5495FD7` (advertising ID bị đổi/reset giữa 2 thời điểm → hash đổi). ID đăng ký `C1D6...` không khớp device hiện tại → request vẫn tính là real → `Ad failed to load : 3` (NO_FILL).
+- [2026-08-15] Fix: `ads_config.dart` `testDeviceIds` = **[`9E19A0CAF5DAFB7BD0E3B151B5495FD7` (hiện tại), `C1D6E94F7B5739F934186905CC65759A` (cũ, dự phòng nếu ID rotate lại)]** + comment ghi rõ advertising ID đã đổi 17:21→21:48, giữ cả 2. Verify: `flutter analyze` 0 issues; `ads_test` + `banner_layout_test` **10/10 pass**. Commit + push `main` → GH Actions debug APK tự trigger (APK chứa 2 test device ID).
+
 ## Test device registration — ads vẫn NO_FILL vì app chưa publish (2026-08-15)
 
 - [2026-08-15] Sau khi bật `enable_ads=true` & `test_ads=false`, test trên phone thật (Pixel 3a, cả 2 APK: `ee4b96d` 15:47 + build mới 17:17) → **vẫn `Ad failed to load : 3` (NO_FILL)** dù SDK init OK (`MAIN: ads supported`, DynamiteModule selected, `Not retrying to fetch app settings` — app ID hợp lệ, network OK).
