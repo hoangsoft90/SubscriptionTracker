@@ -19,6 +19,7 @@
 | — | Store listing (launcher label "Subscription Tracker", `chplay.md`, JotBird/tmpfiles sharing) | `subtrack-store-listing` | ✅ Hoàn thành (2026-08-15, retrospective) |
 | — | Platform config (targetSdk 36, network_security_config, package `com.hoangsoft.subtrack`) | — | ✅ Hoàn thành (2026-08-11/15) |
 | — | `enable_ads=false` mặc định (dart-define `ENABLE_ADS`) + Due-alert dialog (1 lần/ngày) | — | ✅ Hoàn thành (2026-08-15) |
+| — | Bật lại ads THẬT: `enable_ads=true` + `test_ads=false` mặc định (test trên phone) | — | ✅ Hoàn thành (2026-08-15) |
 
 ## Test status (2026-08-15)
 
@@ -48,13 +49,22 @@ Phân bổ tests (chính):
 4. [ ] OCR (open-code-review) đang lỗi 401 config — cần user sửa; fallback hiện
       dùng code-reviewer + review mặc định.
 5. [ ] Sync/archive OpenSpec change cũ vào `openspec/specs/` khi có nhu cầu.
-6. [ ] Trước khi bật ads thật (test_ads=false): tạo AdMob app mới cho package
-      `com.hoangsoft.subtrack` + thay ID trong `ads_config.dart`.
+6. [x] Đã bật ads thật (`enable_ads=true`, `test_ads=false`) 2026-08-15 để test trên phone.
+      **CÒN NỢ**: ad unit ID thật đang đăng ký cho package CŨ `com.subguard.app` —
+      trước khi chạy production nên tạo AdMob app mới cho `com.hoangsoft.subtrack`
+      + thay ID trong `ads_config.dart` (nếu test thấy "No fill" thì do cái này).
 7. [ ] (publish store) Chạy workflow `build-release-aab.yml` (manual) để sinh AAB
       ký thật submit Play Store.
 
 ## Ghi chú phiên gần đây
 
+- **2026-08-15 (bật lại ads thật)**: `AdConfig.enabled` default false → **true**,
+  `AdConfig.testAds` default true → **false** — mọi build giờ dùng ad unit ID THẬT
+  (`ca-app-pub-6917313063209470...`). Test `ads_test.dart` assert default mới.
+  ⚠️ ID thật vẫn đăng ký cho package cũ `com.subguard.app` — cần re-register cho
+  `com.hoangsoft.subtrack` trước production (xem todo #6). Verify: analyze 0,
+  ads+banner tests 10/10. Commit + push → GH Actions debug APK build (test ads thật
+  trên phone). Xem `working.md` mục "Bật lại ads thật…" 2026-08-15.
 - **2026-08-15 (device test notification/dialog + Today-card fix)**: Cài debug APK mới
   (due-alert + ads tắt) lên Pixel 3a thật. **Test bằng UI automation qua adb** (uiautomator
   dump + input tap/text): add sub "Netflix" 15.49 USD monthly qua form thật (next billing

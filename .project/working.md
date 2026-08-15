@@ -2,6 +2,13 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## Bật lại ads thật — enable_ads=true & test_ads=false (2026-08-15)
+
+- [2026-08-15] User yêu cầu: (1) set `enable_ads=true` & `test_ads=false` để bật lại ads THẬT; (2) push + trigger GH Actions build debug APK để test.
+- [2026-08-15] Xong `ads_config.dart`: `AdConfig.enabled` default `false → true` (`ENABLE_ADS`); `AdConfig.testAds` default `true → false` (`TEST_ADS`) — **mọi build (debug + release AAB) giờ dùng ad unit ID THẬT** (`ca-app-pub-6917313063209470...`, banner + interstitial + rewarded). Test `ads_test.dart` cập nhật theo default mới (assert real IDs + `enabled==true`). Cập nhật comment (cách override: `--dart-define=ENABLE_ADS=false` / `TEST_ADS=true`).
+- [2026-08-15] **⚠️ LƯU Ý QUAN TRỌNG (đã cảnh báo từ trước, code comment ghi rõ)**: các ad unit ID thật đang đăng ký cho package **CŨ `com.subguard.app`** (2026-08-11), package hiện tại là **`com.hoangsoft.subtrack`** — trước khi chạy ads thật production nên **tạo AdMob app mới cho `com.hoangsoft.subtrack`** + thay ID trong `ads_config.dart`; nếu test thấy "No fill"/không hiển thị ads trên phone thì đây là nguyên nhân chính (không phải lỗi code).
+- [2026-08-15] Verify: `flutter analyze` 0 issues; `flutter test test/ads_test.dart test/banner_layout_test.dart` **10/10 pass** (test ads chỉ assert config default, không chạm platform; `AdConfig.supported` vẫn false trong FLUTTER_TEST nên widget tests không đổi). Commit + push `main` → GH Actions debug APK tự trigger (APK test ads thật).
+
 ## OpenSpec: change subtrack-device-test-fixes (2026-08-15)
 
 - [2026-08-15] User yêu cầu cập nhật openspec retrospective cho phiên device-test + Today-card fix. Tạo change **`subtrack-device-test-fixes`** đúng format delta:

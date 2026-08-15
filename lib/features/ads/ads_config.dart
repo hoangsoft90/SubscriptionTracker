@@ -16,12 +16,11 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 class AdConfig {
   AdConfig._();
 
-  /// Master switch — ads are OFF by default (`enable_ads=false`, user decision
-  /// 2026-08-15): ship an ad-free build without touching any screen. To turn
-  /// ads back on later (`enable_ads=true`), build with
-  /// `--dart-define=ENABLE_ADS=true` — no code change needed.
+  /// Master switch — ads are ON by default (user decision 2026-08-15: flip
+  /// back to `enable_ads=true` for real-ads testing). Ship an ad-free build
+  /// by overriding with `--dart-define=ENABLE_ADS=false`.
   static const bool enabled =
-      bool.fromEnvironment('ENABLE_ADS', defaultValue: false);
+      bool.fromEnvironment('ENABLE_ADS', defaultValue: true);
 
   /// Test-ads mode. When true, ALL ad units resolve to Google's official
   /// sample/test IDs instead of the real ones, so ads always fill during
@@ -29,11 +28,10 @@ class AdConfig {
   /// and are active in the AdMob console, and test mode avoids that limit
   /// (fresh/unapproved accounts can be limited).
   ///
-  /// NOW ON BY DEFAULT (user decision 2026-08-15): while the app is being
-  /// built/tested, test ads are the safe default so the real AdMob account
-  /// is never touched. Switch to production with
-  /// `flutter build apk --dart-define=TEST_ADS=false`.
-  static const bool testAds = bool.fromEnvironment('TEST_ADS', defaultValue: true);
+  /// OFF BY DEFAULT (user decision 2026-08-15: flip to real-ads testing) —
+  /// all builds now use the REAL ad unit IDs. To go back to test/sample ads
+  /// temporarily, build with `--dart-define=TEST_ADS=true`.
+  static const bool testAds = bool.fromEnvironment('TEST_ADS', defaultValue: false);
 
   /// Real (production) ad unit IDs — registered for the original package
   /// `com.subguard.app` (set up 2026-08-11); needs re-registration for
