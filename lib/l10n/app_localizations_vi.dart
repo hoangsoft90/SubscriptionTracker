@@ -174,6 +174,34 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String get dueAlertTitle => 'Đăng ký sắp đến hạn';
+
+  @override
+  String get dueAlertBody =>
+      'Một số đăng ký của bạn sắp gia hạn hoặc sắp hết dùng thử:';
+
+  @override
+  String dueAlertRenewalToday(String name) {
+    return '$name gia hạn hôm nay';
+  }
+
+  @override
+  String dueAlertRenewalTomorrow(String name) {
+    return '$name gia hạn ngày mai';
+  }
+
+  @override
+  String dueAlertTrialEnding(String name, int days) {
+    return '$name — hết dùng thử sau $days ngày';
+  }
+
+  @override
+  String get dueAlertViewAll => 'Xem tất cả';
+
+  @override
+  String get dueAlertDismiss => 'OK';
+
+  @override
   String reviewTitle(String name) {
     return 'Xem lại $name';
   }

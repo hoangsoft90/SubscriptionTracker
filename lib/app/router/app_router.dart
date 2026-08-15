@@ -1,8 +1,17 @@
-import 'package:flutter/material.dart';
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart' hide DateUtils;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/calendar/date_utils.dart';
 import '../../core/l10n/l10n.dart';
+import '../../core/providers.dart';
+import '../../features/decision/due_alert.dart';
+import '../../features/decision/presentation/due_alert_dialog.dart';
+import '../../features/subscriptions/application/subscription_list_controller.dart';
+import '../../features/subscriptions/domain/subscription.dart';
 import '../../features/ads/ads_controller.dart';
 import '../../features/ads/presentation/banner_ad_view.dart';
 import '../../features/backup/presentation/backup_screen.dart';
@@ -224,17 +233,29 @@ class _NotFoundScreen extends StatelessWidget {
   }
 }
 
-class _AppShell extends ConsumerWidget {
+class _AppShell extends ConsumerStatefulWidget {
   const _AppShell({required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends ConsumerState<_AppShell> {
+  /// Once-per-process: the due-alert check runs on the first build after
+  /// subscriptions finish loading; the ONCE-PER-DAY gate is persisted in
+  /// settings (see DueAlertService.lastShownKey), so the same-day re-check
+  /// is cheap and the dialog can never nag more than once a day.
+  bool _dueAlertChecked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    _maybeCheckDueAlert();
     final l10n = context.l10n;
     final showAds = ref.watch(showAdsProvider);
     return Scaffold(
-      body: navigationShell,
+      body: widget.navigationShell,
       // Banner sits directly ABOVE the NavigationBar (same Column) so it is
       // flush against the nav buttons on every tab — no SafeArea gap, no
       // overlap with the FAB (which floats above this Column). Renders
@@ -244,10 +265,11 @@ class _AppShell extends ConsumerWidget {
         children: [
           if (showAds) const BannerAdView(),
           NavigationBar(
-            selectedIndex: navigationShell.currentIndex,
-            onDestinationSelected: (index) => navigationShell.goBranch(
+            selectedIndex: widget.navigationShell.currentIndex,
+            onDestinationSelected: (index) =>
+                widget.navigationShell.goBranch(
               index,
-              initialLocation: index == navigationShell.currentIndex,
+              initialLocation: index == widget.navigationShell.currentIndex,
             ),
             destinations: [
               NavigationDestination(
@@ -268,6 +290,46 @@ class _AppShell extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  /// Arms the once-per-session due-alert check: [subscriptionListControllerProvider]
+  /// is watched so this runs again as soon as the first load resolves (no
+  /// listener API needed — a rebuild after data arrives is exactly once).
+  void _maybeCheckDueAlert() {
+    if (_dueAlertChecked) return;
+    final subs = ref.watch(subscriptionListControllerProvider);
+    if (!subs.hasValue) return;
+    _dueAlertChecked = true;
+    final subscriptions = subs.value!.subscriptions;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showDueAlertIfDue(subscriptions);
+    });
+  }
+
+  /// Shows the due-alert dialog at most once per local day. Nothing happens
+  /// when there is no due subscription, when the dialog was already shown
+  /// today, or in widget tests (same env guard as `AdConfig.supported`).
+  Future<void> _showDueAlertIfDue(List<Subscription> subscriptions) async {
+    if (kIsWeb || Platform.environment.containsKey('FLUTTER_TEST')) return;
+    final items = const DueAlertService().compute(
+      subscriptions: subscriptions,
+      now: DateTime.now(),
+    );
+    if (items.isEmpty) return;
+
+    final settings = await ref.read(settingsRepositoryProvider.future);
+    final today = DateUtils.format(DateUtils.localMidnight(DateTime.now()));
+    final lastShown = await settings.get(DueAlertService.lastShownKey);
+    if (lastShown == today) return;
+    // Persist BEFORE showing — a crash or dismiss still counts as shown
+    // today, so the dialog never re-nags on the same day.
+    await settings.set(DueAlertService.lastShownKey, today);
+
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (_) => DueAlertDialog(items: items),
     );
   }
 }

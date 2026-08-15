@@ -368,6 +368,48 @@ abstract class AppLocalizations {
   /// **'Haven\'t reviewed {name} in a while. Still worth it?'**
   String queueStale(String name);
 
+  /// No description provided for @dueAlertTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions due soon'**
+  String get dueAlertTitle;
+
+  /// No description provided for @dueAlertBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Some of your subscriptions renew soon or have a trial ending:'**
+  String get dueAlertBody;
+
+  /// No description provided for @dueAlertRenewalToday.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} renews today'**
+  String dueAlertRenewalToday(String name);
+
+  /// No description provided for @dueAlertRenewalTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} renews tomorrow'**
+  String dueAlertRenewalTomorrow(String name);
+
+  /// No description provided for @dueAlertTrialEnding.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} — trial ends in {days} day(s)'**
+  String dueAlertTrialEnding(String name, int days);
+
+  /// No description provided for @dueAlertViewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get dueAlertViewAll;
+
+  /// No description provided for @dueAlertDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get dueAlertDismiss;
+
   /// No description provided for @reviewTitle.
   ///
   /// In en, this message translates to:

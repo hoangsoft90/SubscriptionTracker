@@ -2,6 +2,17 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## enable_ads=false flag + Due-alert dialog (2026-08-15)
+
+- [2026-08-15] User yêu cầu: (1) thêm `enable_ads=false` để tắt ads (sau này `enable_ads=true` bật lại); (2) hỏi khi sub đến hạn có notification + dialog hiện sub gần/đã hết hạn ko — sau đó đồng ý thêm dialog cảnh báo 1 lần/ngày.
+- [2026-08-15] Xong #1: `ads_config.dart` — `AdConfig.enabled` = `bool.fromEnvironment('ENABLE_ADS', defaultValue: false)` → **ads OFF mặc định mọi build** (main.dart không init AdMob, banner/interstitial no-op qua `supported`). Bật lại: build với `--dart-define=ENABLE_ADS=true`. KHÔNG cần sửa workflow (mặc định false là đúng ý user). Verify: analyze 0; `ads_test` + `banner_layout_test` 10/10 pass.
+- [2026-08-15] Xong #2 — trả lời: **notification CÓ + có âm thanh** (scheduler local 9:00 đúng ngày billing "{name} renews soon" + trial +2ngày/đúng ngày; Android `Importance.defaultImportance` + iOS `sound:true`); **dialog KHÔNG có trước đây** — chỉ có card Today + Review Queue trên Home. Đã thêm **due-alert dialog** (1 lần/ngày):
+  - `lib/features/decision/due_alert.dart` — `DueAlertService` (pure): filter HIGH-priority từ `ReviewQueueService` (renewal hôm nay/mai + trial ≤3 ngày; medium price-changed/stale KHÔNG popup) + `lastShownKey = 'dueAlertLastShown'`.
+  - `lib/features/decision/presentation/due_alert_dialog.dart` — `DueAlertDialog`: icon cảnh báo + list item (emoji + tên + lý do: "{name} renews today/tomorrow", "{name} — trial ends in N day(s)"), tap item → `/subscriptions/:id`, nút View all → `/home`, nút OK. **Lưu ý kỹ thuật**: AlertDialog đo intrinsic — dùng `SingleChildScrollView` + Column thay vì shrinkWrap ListView (throw `RenderShrinkWrappingViewport`); `hide DateUtils` khỏi import material (trùng tên `DateUtils` của Flutter).
+  - Wire `_AppShell` (`app_router.dart`) → `ConsumerStatefulWidget` + `_AppShellState`: watch `subscriptionListControllerProvider` lần build đầu khi data có value → post-frame `_showDueAlertIfDue`; gate: kIsWeb/FLUTTER_TEST skip (như AdConfig), items empty skip, `settings.get(lastShownKey) == hôm nay` skip; **persist TRƯỚC khi show** (crash/dismiss vẫn tính đã hiện hôm nay — không nags lặp). `ref.listen(fireImmediately:)` KHÔNG tồn tại trong Riverpod bản này → dùng `ref.watch` trong build.
+  - L10n keys mới `dueAlert*` 7 keys EN+VI (`dueAlertTitle/Body/RenewalToday/RenewalTomorrow/TrialEnding/ViewAll/Dismiss`) + `flutter gen-l10n`.
+- [2026-08-15] Test: `test/due_alert_test.dart` (10 tests — 9 service: empty/due-today/due-tomorrow/2+ngày loại/trial ≤3d/trial >3d loại/medium loại/status ko-active loại/thứ tự high; 1 widget: dialog render items + lý do + OK đóng). Verify: `flutter analyze` 0 issues; `flutter test` **257/257 pass** (247 cũ + 10 mới). Không secret trong diff. Commit + push `main` → GH Actions debug APK tự trigger (APK mới có ads tắt + due-alert dialog).
+
 ## Launcher label "Subscription Tracker" + chplay.md + asset sharing (2026-08-15)
 
 - [2026-08-15] User yêu cầu: (1) đổi tên app "subtrack" → "Subscription Tracker" — hỏi có ổn ko + sửa launcher label; (2) viết `chplay.md` — toàn bộ nội dung đăng tải Google Play Console; (3) up `chplay.md` lên JotBird hosting gửi link; (4) zip icon + feature image up tmpfiles.org gửi link; (5) cập nhật openspec.

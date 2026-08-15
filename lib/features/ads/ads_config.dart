@@ -16,9 +16,12 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 class AdConfig {
   AdConfig._();
 
-  /// Master switch — flip to false to ship an ad-free build without touching
-  /// screens (e.g. if the AdMob account is not ready).
-  static const bool enabled = true;
+  /// Master switch — ads are OFF by default (`enable_ads=false`, user decision
+  /// 2026-08-15): ship an ad-free build without touching any screen. To turn
+  /// ads back on later (`enable_ads=true`), build with
+  /// `--dart-define=ENABLE_ADS=true` — no code change needed.
+  static const bool enabled =
+      bool.fromEnvironment('ENABLE_ADS', defaultValue: false);
 
   /// Test-ads mode. When true, ALL ad units resolve to Google's official
   /// sample/test IDs instead of the real ones, so ads always fill during

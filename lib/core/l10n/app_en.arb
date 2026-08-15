@@ -137,6 +137,37 @@
       }
     }
   },
+  "dueAlertTitle": "Subscriptions due soon",
+  "dueAlertBody": "Some of your subscriptions renew soon or have a trial ending:",
+  "dueAlertRenewalToday": "{name} renews today",
+  "@dueAlertRenewalToday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dueAlertRenewalTomorrow": "{name} renews tomorrow",
+  "@dueAlertRenewalTomorrow": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dueAlertTrialEnding": "{name} — trial ends in {days} day(s)",
+  "@dueAlertTrialEnding": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dueAlertViewAll": "View all",
+  "dueAlertDismiss": "OK",
   "reviewTitle": "Review {name}",
   "@reviewTitle": {
     "placeholders": {

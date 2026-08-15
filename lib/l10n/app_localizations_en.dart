@@ -174,6 +174,34 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get dueAlertTitle => 'Subscriptions due soon';
+
+  @override
+  String get dueAlertBody =>
+      'Some of your subscriptions renew soon or have a trial ending:';
+
+  @override
+  String dueAlertRenewalToday(String name) {
+    return '$name renews today';
+  }
+
+  @override
+  String dueAlertRenewalTomorrow(String name) {
+    return '$name renews tomorrow';
+  }
+
+  @override
+  String dueAlertTrialEnding(String name, int days) {
+    return '$name — trial ends in $days day(s)';
+  }
+
+  @override
+  String get dueAlertViewAll => 'View all';
+
+  @override
+  String get dueAlertDismiss => 'OK';
+
+  @override
   String reviewTitle(String name) {
     return 'Review $name';
   }

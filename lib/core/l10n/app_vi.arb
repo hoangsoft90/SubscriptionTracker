@@ -137,6 +137,37 @@
       }
     }
   },
+  "dueAlertTitle": "Đăng ký sắp đến hạn",
+  "dueAlertBody": "Một số đăng ký của bạn sắp gia hạn hoặc sắp hết dùng thử:",
+  "dueAlertRenewalToday": "{name} gia hạn hôm nay",
+  "@dueAlertRenewalToday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dueAlertRenewalTomorrow": "{name} gia hạn ngày mai",
+  "@dueAlertRenewalTomorrow": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dueAlertTrialEnding": "{name} — hết dùng thử sau {days} ngày",
+  "@dueAlertTrialEnding": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "dueAlertViewAll": "Xem tất cả",
+  "dueAlertDismiss": "OK",
   "reviewTitle": "Xem lại {name}",
   "@reviewTitle": {
     "placeholders": {
