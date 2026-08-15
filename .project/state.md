@@ -1,6 +1,6 @@
 # State (trạng thái hiện tại)
 
-> Cập nhật lần cuối: 2026-08-15 (phiên: Ads + Multi-currency + Release infra + OpenSpec + Store polish).
+> Cập nhật lần cuối: 2026-08-15 (phiên: Ads + Multi-currency + Release infra + OpenSpec + Store polish + Store listing/launcher label).
 > File này đổi thường xuyên — dùng ISO date `YYYY-MM-DD` cho mọi mục.
 > Chi tiết theo ngày ở `working.md`; quy tắc code ở `ai-rules.md`.
 
@@ -16,6 +16,7 @@
 | — | Guidance + Review fixes | `subtrack-guidance` | ✅ Hoàn thành (2026-08-12) |
 | — | Ads + Multi-currency + Release infra + Display reliability | `subtrack-monetization-release` | ✅ Hoàn thành (2026-08-15, retrospective) |
 | — | Store polish (banner shell flush nav, privacy email, feature graphic, code-review fixes) | `subtrack-store-polish` | ✅ Hoàn thành (2026-08-15, retrospective) |
+| — | Store listing (launcher label "Subscription Tracker", `chplay.md`, JotBird/tmpfiles sharing) | `subtrack-store-listing` | ✅ Hoàn thành (2026-08-15, retrospective) |
 | — | Platform config (targetSdk 36, network_security_config, package `com.hoangsoft.subtrack`) | — | ✅ Hoàn thành (2026-08-11/15) |
 
 ## Test status (2026-08-15)
@@ -23,7 +24,7 @@
 - **247/247 tests pass** ✓
 - `flutter analyze` — **No issues found** ✓
 - GH Actions: tách 2 workflow — `build-debug-apk.yml` (debug APK, no keystore, push main) + `build-release-aab.yml` (release AAB ký thật từ GitHub Secrets, manual). Run debug mới nhất (chứa banner shell fix + 3 code-review fixes) đang build.
-- OpenSpec: **7/7 changes validate pass** (6 cũ + `subtrack-store-polish`).
+- OpenSpec: **8/8 changes validate pass** (7 cũ + `subtrack-store-listing`).
 
 Phân bổ tests (chính):
 - Core: `money_test`, `billing_calculator_test`, `data_storage_test`, `local_storage_repository_test` (web storage), `backup_test`, `notifications_test`, `l10n_test`, `ads_test` (8: cooldown/frequency policy + test-ads default true), **`exchange_rates_test`** (conversion USD-pivot, missing-rate null, sumConvertedTo, defaults)
@@ -37,10 +38,11 @@ Phân bổ tests (chính):
 1. [x] **Commit** toàn bộ code — đã push lên `main` nhiều lần (mới nhất 2026-08-15).
 2. [ ] Manual device tests còn lại (đã ghi trong platform-store tasks):
       backup reinstall restore (2.6), IAP sandbox (3.5), privacy network on-device (5.2).
-3. [ ] Cài APK mới (package `com.hoangsoft.subtrack`) lên máy thật + test lại:
-      add → 2 tab update ngay, pull-down giữ data, chờ ad load list vẫn hiển thị,
-      FAB không bị banner che; banner chạm sát nav buttons (banner shell); paywall
-      lỗi hiện đúng copy + slot count khớp gate.
+3. [ ] Cài APK mới (package `com.hoangsoft.subtrack`, launcher label "Subscription Tracker")
+      lên máy thật + test lại: add → 2 tab update ngay, pull-down giữ data, chờ ad
+      load list vẫn hiển thị, FAB không bị banner che; banner chạm sát nav buttons
+      (banner shell); paywall lỗi hiện đúng copy + slot count khớp gate. Build cuối:
+      commit `de03761` → GH Actions run `31863893172` (Build Debug APK, queued).
 4. [ ] OCR (open-code-review) đang lỗi 401 config — cần user sửa; fallback hiện
       dùng code-reviewer + review mặc định.
 5. [ ] Sync/archive OpenSpec change cũ vào `openspec/specs/` khi có nhu cầu.
@@ -51,6 +53,20 @@ Phân bổ tests (chính):
 
 ## Ghi chú phiên gần đây
 
+- **2026-08-15 (store-listing)**: Launcher label "subtrack" → "Subscription Tracker"
+  (Android `android:label` + iOS `CFBundleDisplayName` + web title/manifest) — internal
+  identifiers giữ nguyên (product id `subtrack_lifetime_pro`, `subtrack.db`, storage
+  prefix, notification channel, in-app brand "SubTrack") để không mất dữ liệu/store
+  linkage. Tạo `chplay.md` (root) — toàn bộ Play Console listing: App Name/Short/Full
+  Description EN+VI, Finance + 5 tags, 4 screenshot ideas, feature graphic/icon notes,
+  content checklist. Publish `chplay.md` lên JotBird
+  (https://share.jotbird.com/soft-playful-moonbeam, 90-day TTL; lần đầu 403 Cloudflare
+  → curl + UA trình duyệt OK); zip `icon.png`+`feature-graphic.png` lên tmpfiles.org
+  (https://tmpfiles.org/wpw3SAjPUsGo/subtrack_store_assets.zip, tạm thời ~1h). OpenSpec
+  retrospective `subtrack-store-listing` (2 specs: launcher-label, asset-sharing) —
+  validate **8/8**. Commits `de03761` (launcher label + chplay.md) + `db8db5e`
+  (openspec + working.md). JotBird key KHÔNG commit (grep 0 match). Xem `working.md`
+  mục 2026-08-15 (mục đầu).
 - **2026-08-15 (store-polish)**: Banner chuyển lên **shell** (`_AppShell`
   `bottomNavigationBar` = `Column [BannerAdView, NavigationBar]`) — nằm trực tiếp
   trên nav buttons, đều cả 3 tab, bỏ SafeArea gap; xóa banner khỏi Home/Subscriptions
