@@ -6,6 +6,7 @@ import '../subscriptions/domain/subscription_status.dart';
 class TodayBrief {
   const TodayBrief({
     required this.clear,
+    this.dueToday = const [],
     this.nextRenewal,
     this.nextRenewalInDays,
     this.trialEnding,
@@ -15,7 +16,11 @@ class TodayBrief {
   });
 
   /// True when nothing at all needs attention today ("You're clear").
+  /// False as soon as any charge or trial event happens today.
   final bool clear;
+
+  /// Active subscriptions billing today (rendered as "renews today" rows).
+  final List<Subscription> dueToday;
 
   /// Earliest active renewal strictly after today (null → none).
   final Subscription? nextRenewal;
@@ -94,10 +99,14 @@ class TodayBriefService {
     }
 
     final hasEventToday = dueToday.isNotEmpty || trialEndsToday.isNotEmpty;
-    final clear = nextRenewal == null && trialEnding == null;
+    // Not "clear" while anything charges/ends today — a renewal due today
+    // must never show "You're clear" (device-test 2026-08-15).
+    final clear =
+        nextRenewal == null && trialEnding == null && !hasEventToday;
 
     return TodayBrief(
       clear: clear,
+      dueToday: dueToday,
       nextRenewal: nextRenewal,
       nextRenewalInDays: clear ? null : nextRenewalInDays,
       trialEnding: trialEnding,

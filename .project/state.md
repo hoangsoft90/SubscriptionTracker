@@ -1,6 +1,6 @@
 # State (trạng thái hiện tại)
 
-> Cập nhật lần cuối: 2026-08-15 (phiên: Ads + Multi-currency + Release infra + OpenSpec + Store polish + Store listing + enable_ads flag + Due-alert dialog).
+> Cập nhật lần cuối: 2026-08-15 (phiên: Ads + Multi-currency + Release infra + OpenSpec + Store polish + Store listing + enable_ads flag + Due-alert dialog + Device test notification/dialog + Today-card fix).
 > File này đổi thường xuyên — dùng ISO date `YYYY-MM-DD` cho mọi mục.
 > Chi tiết theo ngày ở `working.md`; quy tắc code ở `ai-rules.md`.
 
@@ -22,7 +22,7 @@
 
 ## Test status (2026-08-15)
 
-- **257/257 tests pass** ✓ (247 cũ + 10 mới: `due_alert_test.dart` — service 9 + dialog widget 1)
+- **258/258 tests pass** ✓ (257 cũ + 1 mới `decision_engine_widget_test.dart`: renewal today → hiển thị sub, không "You're clear")
 - `flutter analyze` — **No issues found** ✓
 - GH Actions: tách 2 workflow — `build-debug-apk.yml` (debug APK, no keystore, push main) + `build-release-aab.yml` (release AAB ký thật từ GitHub Secrets, manual). Run debug mới nhất (chứa banner shell fix + 3 code-review fixes) đang build.
 - OpenSpec: **8/8 changes validate pass** (7 cũ + `subtrack-store-listing`).
@@ -39,13 +39,12 @@ Phân bổ tests (chính):
 1. [x] **Commit** toàn bộ code — đã push lên `main` nhiều lần (mới nhất 2026-08-15).
 2. [ ] Manual device tests còn lại (đã ghi trong platform-store tasks):
       backup reinstall restore (2.6), IAP sandbox (3.5), privacy network on-device (5.2).
-3. [ ] Cài APK mới (package `com.hoangsoft.subtrack`, launcher label "Subscription Tracker")
-      lên máy thật + test lại: add → 2 tab update ngay, pull-down giữ data, chờ ad
-      load list vẫn hiển thị, FAB không bị banner che; banner chạm sát nav buttons
-      (banner shell); paywall lỗi hiện đúng copy + slot count khớp gate; **ads tắt
-      hoàn toàn (enable_ads=false)**; **due-alert dialog hiện đúng 1 lần/ngày khi có
-      sub đến hạn hôm nay/mai hoặc trial ≤3 ngày**. Build cuối: commit (due-alert)
-      → GH Actions run mới (Build Debug APK).
+3. [x] Cài APK mới (package `com.hoangsoft.subtrack`, launcher label "Subscription Tracker")
+      lên máy thật (Pixel 3a) + test notification/dialog: **due-alert dialog hiện đúng**
+      (Netflix + YouTube renews today), **notification schedule OK** (alarm 08-16 09:00
+      cho Netflix due tomorrow). Còn lại cần verify tiếp trên APK mới (sẽ chứa fix
+      Today card): add → 2 tab update ngay, pull-down giữ data, banner chạm sát nav,
+      paywall copy/slots, ads tắt hoàn toàn, dialog 1 lần/ngày.
 4. [ ] OCR (open-code-review) đang lỗi 401 config — cần user sửa; fallback hiện
       dùng code-reviewer + review mặc định.
 5. [ ] Sync/archive OpenSpec change cũ vào `openspec/specs/` khi có nhu cầu.
@@ -56,6 +55,24 @@ Phân bổ tests (chính):
 
 ## Ghi chú phiên gần đây
 
+- **2026-08-15 (device test notification/dialog + Today-card fix)**: Cài debug APK mới
+  (due-alert + ads tắt) lên Pixel 3a thật. **Test bằng UI automation qua adb** (uiautomator
+  dump + input tap/text): add sub "Netflix" 15.49 USD monthly qua form thật (next billing
+  mặc định = hôm nay) → **due-alert dialog hiện ĐÚNG** trên relaunch: title "Subscriptions
+  due soon", list Netflix + YouTube "renews today" (YouTube đã có sẵn renew hôm nay), OK/
+  View all/Dismiss (screenshot /tmp/due_alert_dialog.png). **Notification**: sửa Netflix
+  next billing → 08-16 (tomorrow) qua date picker → reconcile trigger → `notifScheduledIds`
+  = `[1537038242]` + dumpsys alarm `RTC_WAKEUP origWhen=2026-08-16 09:00:00`
+  → `ScheduledNotificationReceiver` — pipeline end-to-end OK (sẽ bắn sáng mai 9:00 có
+  âm thanh). **Giải thích hành vi**: sub đến hạn HÔM NAY sau 9:00 không schedule reminder
+  nào (skip trigger đã qua + next occurrence ngoài horizon 14 ngày) — đúng thiết kế
+  "không nags sau giờ". **Fix bug phát hiện khi test**: Home Today card hiện "You're
+  clear" dù có sub renew HÔM NAY — `TodayBriefService.clear` bỏ qua due-today events
+  (chỉ nextRenewal/trialEnding) → thêm field `dueToday` + `clear` giờ tính cả
+  `!hasEventToday`; `_TodayCard` render row "Next: X — in today" cho từng sub due hôm
+  nay. Tests: `decision_engine_test.dart` (due-today → clear=false + dueToday populated)
+  + widget test mới (renewal today → "Next: Netflix", không "You're clear"). Verify:
+  analyze 0, **258/258 pass**. Xem `working.md` mục "Device test…" 2026-08-15.
 - **2026-08-15 (enable_ads + Due-alert)**: `AdConfig.enabled` giờ đọc dart-define
   `ENABLE_ADS` mặc định **false** — ads tắt toàn bộ (main.dart không init AdMob,
   banner/interstitial no-op); bật lại sau này bằng `--dart-define=ENABLE_ADS=true`.

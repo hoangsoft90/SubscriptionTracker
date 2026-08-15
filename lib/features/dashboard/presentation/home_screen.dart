@@ -424,6 +424,18 @@ class _TodayCard extends StatelessWidget {
                     ],
                   ),
                 ),
+              // Renewals charging TODAY (device-test 2026-08-15: these must
+              // surface here — previously only the Review Queue/dialog saw
+              // them and the card wrongly said "You're clear").
+              for (final sub in brief.dueToday)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _NextRenewalRow(
+                    subscription: sub,
+                    days: 0,
+                    primary: primary,
+                  ),
+                ),
               if (brief.nextRenewal != null)
                 _NextRenewalRow(
                   subscription: brief.nextRenewal!,

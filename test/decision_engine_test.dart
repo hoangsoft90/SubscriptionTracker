@@ -110,12 +110,19 @@ void main() {
       expect(brief.trialEndingInDays, 2);
     });
 
-    test('billing today → hasEventToday', () {
+    test('billing today → hasEventToday, not clear, dueToday surfaced', () {
       final brief = const TodayBriefService().compute(
-        subscriptions: [_sub(nextBilling: DateTime(2026, 8, 10))],
+        subscriptions: [
+          _sub(id: 'a', name: 'A', nextBilling: DateTime(2026, 8, 10)),
+          _sub(id: 'b', name: 'B', nextBilling: DateTime(2026, 8, 15)),
+        ],
         now: _now,
       );
       expect(brief.hasEventToday, isTrue);
+      // Device-test 2026-08-15: a renewal today must never read "clear".
+      expect(brief.clear, isFalse);
+      expect(brief.dueToday.map((s) => s.id), contains('a'));
+      expect(brief.dueToday.map((s) => s.id), isNot(contains('b')));
     });
   });
 

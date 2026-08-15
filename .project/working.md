@@ -2,6 +2,22 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## Device test notification + dialog → Today-card fix (2026-08-15)
+
+- [2026-08-15] User cài debug APK mới nhất (due-alert dialog + ads tắt) lên Pixel 3a thật (adb wireless, package `com.hoangsoft.subtrack`, Android 13, timezone +07) → yêu cầu tạo subscription mới sắp hết hạn để test notification + dialog cảnh báo.
+- [2026-08-15] **UI automation qua adb** (uiautomator dump để lấy bounds + `input tap/text`):
+  - DB thật (pull qua `run-as`): đã có sẵn 1 sub "YouTube" 25.00 USD MONTHLY renew **hôm nay 08-15** (user tự thêm lúc 14:41); `app_settings` KHÔNG có `dueAlertLastShown` (gate dialog chưa set hôm nay); `notifScheduledIds=[]`.
+  - Add sub "Netflix" 15.49 USD qua form thật (FAB → name/amount → Save; next billing **mặc định = hôm nay**) → list hiển thị ngay "Netflix Next: 08/15 15.49 USD Active" ✅.
+  - Force-stop + relaunch → **due-alert dialog HIỆN ĐÚNG**: title "Subscriptions due soon", body + list "📦 Netflix — Netflix renews today" + "📦 YouTube — YouTube renews today", nút OK/View all/Dismiss. Screenshot `/tmp/due_alert_dialog.png`. Tap OK → đóng, Home hiển thị, `dueAlertLastShown=2026-08-15` được persist.
+  - **Notification**: sửa Netflix next billing → **08-16 (tomorrow)** (detail → Edit → date picker chọn ngày 16 → OK → Save) → reconcile trigger (ref.listen subscription change) → `notifScheduledIds=[1537038242]` + `dumpsys alarm` thấy `RTC_WAKEUP origWhen=2026-08-16 09:00:00 → com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver` — **pipeline end-to-end OK**, sẽ bắn 09:00 mai kèm âm thanh (channel defaultImportance).
+  - **Giải thích hành vi (không phải bug)**: sub renew HÔM NAY sau 09:00 không schedule reminder nào — `_billingEvents` skip trigger đã qua (`triggerAt.isBefore(current)`) và next occurrence (tháng sau) nằm NGOÀI horizon 14 ngày → đúng thiết kế "không nags sau giờ". Sub due TOMORROW mới vào horizon → schedule.
+  - Demo notification bắn ngay: `cmd notification post` không impersonate được app channel; broadcast `SCHEDULED_NOTIFICATION` + id tới `ScheduledNotificationReceiver` thì no-op (receiver cần payload extra) → KHÔNG ép được delivery trước 9:00 mai (không root, `su` không có). Đủ bằng chứng: alarm OS đã set.
+- [2026-08-15] **Phát hiện + fix bug UI khi test**: Home Today card hiện "You're clear. No renewals or trials need attention today." dù có 2 sub renew HÔM NAY (đáng lẽ phải nổi bật). Root cause: `TodayBriefService` — `clear = nextRenewal==null && trialEnding==null` **bỏ qua due-today events** (`dueToday` chỉ tính `hasEventToday` bool, card không render); nextRenewal là "strictly after today" nên renew hôm nay không bao giờ lên card. Fix:
+  - `today_brief.dart`: thêm field `dueToday: List<Subscription>` + `clear` giờ = `nextRenewal==null && trialEnding==null && !hasEventToday` (có event hôm nay → KHÔNG "You're clear").
+  - `home_screen.dart` `_TodayCard`: render `_NextRenewalRow(days: 0)` ("Next: X — in today (date) · price") cho từng sub trong `dueToday`, trước row next renewal.
+  - Tests: `decision_engine_test.dart` — test "billing today" mở rộng: `clear=false`, `dueToday` chứa sub due hôm nay, không chứa sub due khác; `decision_engine_widget_test.dart` — widget test mới "renewal today → shows the sub, never the clear message" (pump SubTrackApp + sub due today → `Next: Netflix` hiện, text "You're clear" không tồn tại). Lưu ý kỹ thuật: lỗi cú pháp Dart đầu tiên do test NAME chứa `'` (You're) trong single-quoted string → đổi tên test bỏ apostrophe.
+- [2026-08-15] Verify: `flutter analyze` **No issues**; `flutter test` **258/258 pass** (257 + 1 widget mới). Không secret. Commit + push `main` → GH Actions build debug APK mới (chứa fix Today card) — cài lên phone sẽ thấy card Today liệt kê sub renew hôm nay thay vì "You're clear".
+
 ## enable_ads=false flag + Due-alert dialog (2026-08-15)
 
 - [2026-08-15] User yêu cầu: (1) thêm `enable_ads=false` để tắt ads (sau này `enable_ads=true` bật lại); (2) hỏi khi sub đến hạn có notification + dialog hiện sub gần/đã hết hạn ko — sau đó đồng ý thêm dialog cảnh báo 1 lần/ngày.

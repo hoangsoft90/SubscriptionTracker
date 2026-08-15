@@ -29,6 +29,20 @@ void main() {
       expect(find.textContaining('Next: Netflix'), findsOneWidget);
     });
 
+    testWidgets('renewal today → shows the sub, never the clear message',
+        (tester) async {
+      final now = DateTime.now();
+      final harness = WidgetHarness(subscriptions: [
+        _sub(name: 'Netflix', nextBilling: DateTime(now.year, now.month, now.day)),
+      ]);
+
+      await tester.pumpWidget(harness.scope(child: const SubTrackApp()));
+      await pumpUntilFound(tester, find.textContaining('Next: Netflix'));
+      // Device-test 2026-08-15 regression: a renewal due today must not show
+      // the "You're clear" message on the Home Today card.
+      expect(find.textContaining('You\'re clear'), findsNothing);
+    });
+
     testWidgets('trial ending in 2 days surfaces the warning on the Today card',
         (tester) async {
       final now = DateTime.now();
