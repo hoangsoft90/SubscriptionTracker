@@ -2,6 +2,10 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## OpenSpec: change subtrack-store-polish (2026-08-15)
+
+- [2026-08-15] User yêu cầu cập nhật openspec sau loạt work store-facing + code-review fixes. Tạo change retrospective **`subtrack-store-polish`**: `proposal.md` + 3 specs đúng format delta — `store-assets-privacy` (privacy policy bỏ GitHub repo → email `haibasoftware@gmail.com`, gh-pages redeploy, icon 512×512 verified, feature-graphic 1024×500), `banner-shell-placement` (banner trong shell Column trên NavigationBar — flush không gap SafeArea, mọi tab), `review-bugfixes` (paywall error copy, paywall slots-used khớp gate add-form, exchange-rate error localized) + `tasks.md` retrospective all [x]. Verify: `openspec validate --changes` **7/7 pass** (6 change cũ + 1 mới). Commit `f8b3646` push `main` (docs-only).
+
 ## Privacy email + full code review (2026-08-15)
 
 - [2026-08-15] User yêu cầu: (1) đổi email trong privacy policy thành `haibasoftware@gmail.com`; (2) review toàn bộ code tìm lỗi UI/logic/crash.
