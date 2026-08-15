@@ -70,7 +70,7 @@ runner Linux) — Gradle dùng `JAVA_HOME`. CI (GH Actions) set qua `actions/set
 
 - **OCR (open-code-review) lỗi 401 Invalid API key** — chưa dùng được; cần user
   sửa config. Fallback: review mặc định + code-reviewer.
-- **AdMob**: đã dùng ID thật từ 2026-08-11 (app `ca-app-pub-6917313063209470~5291822252`, package `com.subguard.app`) — banner/interstitial trong `ads_config.dart`, App ID trong AndroidManifest + Info.plist. Rewarded ID lưu sẵn nhưng chưa wire flow. Lưu ý: ID thật chỉ trả ads khi ad unit đã active + có traffic hợp lệ; trong dev vẫn có thể gặp "No fill" — không phải lỗi cấu hình. Web không hỗ trợ
+- **AdMob**: đã dùng ID thật từ 2026-08-11 (app `ca-app-pub-6917313063209470~5291822252`, package ban đầu `com.subguard.app`) — banner/interstitial trong `ads_config.dart`, App ID trong AndroidManifest + Info.plist. **2026-08-15**: đổi package sang `com.hoangsoft.subtrack` → khi bật ads thật phải đăng ký AdMob app mới cho package mới + thay ID trong `ads_config.dart`. Rewarded ID lưu sẵn nhưng chưa wire flow. Lưu ý: ID thật chỉ trả ads khi ad unit đã active + có traffic hợp lệ; trong dev vẫn có thể gặp "No fill" — không phải lỗi cấu hình. Web không hỗ trợ
   AdMob → `AdConfig.supported=false` (no-op).
 - `sqflite_common_ffi` không chạy trong widget tests (isolate) — đừng thử lại,
   dùng fakes.

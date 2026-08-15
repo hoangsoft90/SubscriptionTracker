@@ -1,0 +1,79 @@
+name: Build Release AAB (signed)
+
+# Release AAB ký bằng keystore thật để submit Play Store. Keystore + mật khẩu
+# KHÔNG commit vào repo (đã gitignored) — lấy từ GitHub Secrets:
+#
+#   ANDROID_KEYSTORE_BASE64  = base64 của android/keystore/subtrack-release.jks
+#   ANDROID_STORE_PASSWORD   = mật khẩu keystore
+#   ANDROID_KEY_ALIAS        = alias key (vd: upload)
+#   ANDROID_KEY_PASSWORD     = mật khẩu key
+#
+# Cách set (một lần, bằng token có quyền admin repo):
+#   base64 -w0 android/keystore/subtrack-release.jks | gh secret set \
+#     ANDROID_KEYSTORE_BASE64 --repo hoangsoft90/SubscriptionTracker
+#   gh secret set ANDROID_STORE_PASSWORD --repo ... (nhập 83793900)
+#   gh secret set ANDROID_KEY_ALIAS --repo ... (nhập upload)
+#   gh secret set ANDROID_KEY_PASSWORD --repo ... (nhập 83793900)
+#
+# Chỉ chạy thủ công (workflow_dispatch) — không chạy trên mỗi push.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-release-aab:
+    name: Build signed release AAB (Gradle)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.9'
+          channel: stable
+          cache: true
+
+      - name: Decode keystore from secrets
+        run: |
+          if [ -z "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 secret chưa được set — xem hướng dẫn trong file workflow."
+            exit 1
+          fi
+          mkdir -p android/keystore
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/keystore/subtrack-release.jks
+          ls -l android/keystore/subtrack-release.jks
+
+      - name: Write key.properties from secrets
+        run: |
+          cat > android/key.properties <<'EOF'
+          storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=keystore/subtrack-release.jks
+          EOF
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Build release AAB (signed, Gradle)
+        # signingConfig release dùng keystore thật khi android/key.properties tồn tại.
+        run: flutter build appbundle --release
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: subtrack-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 30

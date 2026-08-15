@@ -43,8 +43,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <!-- AdMob application ID (real — com.subguard.app). Ads: free tier
-             only, non-personalized; Pro removes them. INTERNET/ACCESS_NETWORK_STATE
+        <!-- AdMob application ID (real — com.hoangsoft.subtrack). Ads: free
+             tier only, non-personalized; Pro removes them. INTERNET/ACCESS_NETWORK_STATE
              come from the plugin's manifest. -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"

@@ -16,7 +16,7 @@ import 'package:subtrack/l10n/app_localizations.dart';
 /// 4. Tapping a category toggles its highlight (Bug 4).
 ///
 /// Run (fresh app state recommended):
-///   adb -s `DEVICE` shell pm clear com.subguard.app
+///   adb -s `DEVICE` shell pm clear com.hoangsoft.subtrack
 ///   flutter test integration_test/device_ux_test.dart -d `DEVICE`
 ///
 /// Locale-agnostic: every finder uses the app's own l10n strings, so it works

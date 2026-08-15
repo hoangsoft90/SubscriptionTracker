@@ -1,4 +1,4 @@
-package com.subguard.app
+package com.hoangsoft.subtrack
 
 import io.flutter.embedding.android.FlutterActivity
 

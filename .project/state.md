@@ -59,7 +59,7 @@ Phân bổ tests (chính):
   StatusChip ellipsis. **203/203 tests pass**. Tạo OpenSpec change `subtrack-guidance`
   (retrospective, 2 capability: in-app-guidance + review-bugfixes) — validate 5/5.
   Xem `working.md` mục 2026-08-12.
-- **2026-08-11**: Package `com.subguard.app` + AdMob ID thật (app
+- **2026-08-11**: Package `com.subguard.app` (ban đầu) + AdMob ID thật (app
   `ca-app-pub-6917313063209470~5291822252`; banner/interstitial trong `ads_config.dart`,
   App ID AndroidManifest + Info.plist). Test device thật: init OK, banner "No fill"
   (device chưa đăng ký test device — không phải lỗi cấu hình).

@@ -2,6 +2,20 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## Split GH workflows + đổi package com.subguard.app → com.hoangsoft.subtrack (2026-08-15)
+
+- [2026-08-15] User yêu cầu: (1) tách GH workflow thành 2 cái — debug APK (no keystore) riêng, release AAB (with keystore) riêng; (2) package `com.subguard.app` đã tồn tại → đổi sang package khác (user chọn `com.hoangsoft.subtrack` qua ask_user).
+- [2026-08-15] Xong split workflow (xóa `build-apk.yml` cũ — build cả debug+release+APK+AAB):
+  - `.github/workflows/build-debug-apk.yml` — chỉ `flutter build apk --debug`, upload `subtrack-debug-apk`; trigger push main + workflow_dispatch; KHÔNG cần keystore.
+  - `.github/workflows/build-release-aab.yml` — chỉ `flutter build appbundle --release` ký thật; trigger workflow_dispatch (manual); keystore từ GitHub Secrets: decode `ANDROID_KEYSTORE_BASE64` → `android/keystore/subtrack-release.jks` + ghi `android/key.properties` từ secrets (`ANDROID_STORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`). Có error rõ nếu secret chưa set.
+  - Đã set 4 GitHub Secrets qua `gh secret set` (repo `hoangsoft90/SubscriptionTracker`): `ANDROID_KEYSTORE_BASE64` (base64 của `android/keystore/subtrack-release.jks`), `ANDROID_STORE_PASSWORD`=83793900, `ANDROID_KEY_ALIAS`=upload, `ANDROID_KEY_PASSWORD`=83793900. Verified bằng `gh secret list` (4 secrets xuất hiện).
+- [2026-08-15] Xong đổi package `com.subguard.app` → `com.hoangsoft.subtrack` (user chọn, do package cũ đã tồn tại):
+  - Android: `namespace` + `applicationId` trong `android/app/build.gradle.kts`; move `MainActivity.kt` `com/subguard/app/` → `com/hoangsoft/subtrack/` (+ `package` line); comment AdMob app ID trong `AndroidManifest.xml`.
+  - iOS: `PRODUCT_BUNDLE_IDENTIFIER` 6 chỗ trong `project.pbxproj` (`com.hoangsoft.subtrack` + `.RunnerTests`).
+  - `google-services.json` package_name → `com.hoangsoft.subtrack` (lưu ý: google-services plugin KHÔNG được apply — file chỉ là tham chiếu AdMob; nếu sau này bật Firebase/real ads cần tạo AdMob app mới cho package mới và cập nhật ID trong `ads_config.dart` — đã ghi chú trong comment).
+  - `integration_test/device_ux_test.dart` comment `adb pm clear`; `ads_config.dart` comments ghi rõ ID thật đang đăng ký cho package cũ, cần re-register trước khi bật ads thật; `.project/ai-rules.md`/`overview.md`/`state.md` cập nhật.
+- [2026-08-15] Verify: `flutter analyze` 0 issues; `flutter test` **247/247 pass**; grep kiểm tra không còn ref `com.subguard.app`/`com/subguard` trong code (chỉ còn comment lịch sử trong working.md + ads_config note). **KHÔNG build APK local** (user yêu cầu tuyệt đối không build local — build qua GH Actions). Commit + push lên `main` → debug APK workflow tự trigger verify package mới; release AAB chạy manual khi cần submit Play Store.
+
 ## Multi-currency Home report + test_ads default + FAB/banner overlap (2026-08-15)
 
 - [2026-08-15] User yêu cầu 3 việc: (1) set `test_ads=true` mặc định để hiển thị test ads tránh AdMob limit tài khoản thật; (2) nút "+" bị banner ads đè lên; (3) list subscriptions chưa hiển thị currency + hỏi Home có chuyển đổi multi-currency về base currency không.

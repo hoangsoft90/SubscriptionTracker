@@ -8,9 +8,11 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 /// network SDK in the app — serving **non-personalized** banner + rare
 /// interstitial ads on the **free tier only**. Lifetime Pro removes all ads.
 ///
-/// IDs below are the REAL AdMob app + ad unit IDs for `com.subguard.app`
-/// (set up 2026-08-11). Same app ID is used on Android + iOS; the ad units
-/// serve both platforms.
+/// IDs below are the REAL AdMob app + ad unit IDs, registered for the
+/// original package `com.subguard.app` (set up 2026-08-11). The package has
+/// since moved to `com.hoangsoft.subtrack` (2026-08-15) — BEFORE enabling
+/// real (non-test) ads again, register a new AdMob app for the new package
+/// and replace the IDs below. Same app ID is used on Android + iOS.
 class AdConfig {
   AdConfig._();
 
@@ -30,8 +32,9 @@ class AdConfig {
   /// `flutter build apk --dart-define=TEST_ADS=false`.
   static const bool testAds = bool.fromEnvironment('TEST_ADS', defaultValue: true);
 
-  /// Real (production) ad unit IDs for `com.subguard.app`
-  /// (set up 2026-08-11). Same app ID on Android + iOS.
+  /// Real (production) ad unit IDs — registered for the original package
+  /// `com.subguard.app` (set up 2026-08-11); needs re-registration for
+  /// `com.hoangsoft.subtrack` before going live with real ads.
   static const String _androidAppId = 'ca-app-pub-6917313063209470~5291822252';
   static const String _iosAppId = 'ca-app-pub-6917313063209470~5291822252';
   static const String _androidBanner = 'ca-app-pub-6917313063209470/7565917792';

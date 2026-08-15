@@ -87,7 +87,7 @@ test/
 | M2.5 | `subtrack-decision-engine` (brief, queue, savings, calendar, price-history, lifecycle) | ✅ Hoàn thành (159/159) |
 | — | Storage platform split (web localStorage) | ✅ (2026-08-10) |
 | — | `subtrack-guidance` (in-app guidance + review bugfixes) | ✅ (2026-08-12, retrospective) |
-| — | Platform config (targetSdk 36, network_security_config, package `com.subguard.app`) | ✅ (2026-08-11/12) |
+| — | Platform config (targetSdk 36, network_security_config, package `com.hoangsoft.subtrack`) | ✅ (2026-08-11/15) |
 
 ## Quyết định quan trọng (ADR-style tóm tắt)
 
@@ -109,7 +109,7 @@ test/
    cáo **không cá nhân hóa** (`npa=1`, không ATT/IDFA); Pro (Lifetime) xóa toàn bộ ads.
    Spec privacy-compliance đã sửa theo; copy About + paywall + privacy labels đã cập nhật.
    2026-08-11: đã thay bằng ID AdMob thật (app `ca-app-pub-6917313063209470~5291822252`, package
-   `com.subguard.app`) — AndroidManifest + Info.plist + ads_config.dart; rewarded ID lưu sẵn, chưa dùng.
+   `com.hoangsoft.subtrack` từ 2026-08-15; ban đầu `com.subguard.app`) — AndroidManifest + Info.plist + ads_config.dart; rewarded ID lưu sẵn, chưa dùng.
 9. **Guidance state persist qua bảng `app_settings`** (rule #8) — `guidance.steps`/`guidance.tours`
    comma-joined, không thêm shared_preferences; tour show-once theo seen-tour-ids (2026-08-12).
 10. **Monthly Cost = monthly-equivalent mọi cycle** (`yearlyTotal ~/ 12`) — không chỉ cycle
