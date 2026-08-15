@@ -2,6 +2,22 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## Multi-currency Home report + test_ads default + FAB/banner overlap (2026-08-15)
+
+- [2026-08-15] User yêu cầu 3 việc: (1) set `test_ads=true` mặc định để hiển thị test ads tránh AdMob limit tài khoản thật; (2) nút "+" bị banner ads đè lên; (3) list subscriptions chưa hiển thị currency + hỏi Home có chuyển đổi multi-currency về base currency không.
+- [2026-08-15] Xong #1: `ads_config.dart` — `testAds = bool.fromEnvironment('TEST_ADS', defaultValue: true)` (test ads ON mặc định; production flip bằng `--dart-define=TEST_ADS=false`). Cập nhật `ads_test.dart` (test-ads mode giờ assert default true + sample IDs).
+- [2026-08-15] Xong #2: **Root cause** — banner nằm trong body Column của màn hình, FAB default `endFloat` trôi lên trên banner. Fix: chuyển `BannerAdView` từ body Column sang **`Scaffold.bottomNavigationBar`** (Home + Subscriptions) → FAB tự động nổi PHÍA TRÊN banner (không còn đè), đồng thời loại bỏ nguy cơ banner làm collapse list (đã có `banner_layout_test.dart`). ListView bottom padding 88→16 (banner không còn nằm trong body).
+- [2026-08-15] Xong #3a: list tile thêm `currencyCode: true` vào `MoneyText` (hiển thị "14.99 USD"/"99,999 VND" thay vì số trần), maxWidth 110→140. Widget test mới trong `subscription_display_test.dart`.
+- [2026-08-15] Xong #3b (user chọn "Cả hai" + "Live API + fallback thủ công" qua ask_user):
+  - `lib/core/money/exchange_rates.dart` — pure core: rates = units/1-USD pivot; `convertMinorToPrimary` (minor→USD→target, null khi thiếu rate — không bịa), `sumConvertedTo`, `fetchLiveRates` (open.er-api.com/v6/latest/USD, free không key, timeout 6s), `defaultManualExchangeRates` (VND 25400/EUR 0.92/GBP 0.79/JPY 156/KRW 1380), `canFetchLive=false` khi test/web.
+  - `providers.dart` — `exchangeRatesProvider` (FutureProvider: live thắng, fallback manual) + `manualExchangeRatesProvider` + `saveManualExchangeRates` (persist JSON vào settings repo).
+  - Dashboard controller — `monthlyTotalConverted`/`yearlyTotalConverted`/`allActiveConvertible`/`savingsConverted`.
+  - Home `_CostCard` — headline convert về primary + Wrap breakdown từng currency (currencyCode) + note "≈ converted" (l10n `dashboardConvertedNote` EN+VI). An toàn tiền: chỉ convert khi MỌI active sub có rate (không truncate âm thầm), fallback primary-only.
+  - Settings — section "Exchange rates (fallback)" (`_ExchangeRatesSection`): nhập thủ công 1 USD = X cho EUR/GBP/VND/JPY/KRW, lưu qua `saveManualExchangeRates`, invalidate cả 2 provider. L10n keys mới EN+VI.
+  - Dependency mới: `http ^1.5.0` (chỉ dùng fetch live rates).
+- [2026-08-15] Tests: `test/exchange_rates_test.dart` (conversion USD→VND/VND→USD/VND→EUR qua pivot, missing rate→null, sumConvertedTo, defaults, canFetchLive=false) + `dashboard_controller_test.dart` +3 multi-currency + `subscription_display_test.dart` +1 currency display. Fix test phụ thuộc layout: `ux_bugfix_widget_test.dart` (Settings giờ có section tỷ giá đẩy "Appearance" xuống → scrollUntilVisible). Verify: `flutter analyze` 0 issues; `flutter test` **247/247 pass**.
+- [2026-08-15] Commit + push **`593244d`** lên `main` (19 files, +844/−28) — GH Actions run `31857687594` build APK + AAB (in_progress). Không secret trong diff (đã grep ghp_/api key/password trước commit).
+
 ## AdMob banner collapse list — root cause device (2026-08-14)
 
 - [2026-08-14] Test trên phone thật (debug APK từ run `31784152560`/42e12cd, Pixel 3a): add "Netflix Test" 99,999 VND qua UI thật → **cả 2 tab Subscriptions + Home update NGAY** (bug invalidate dashboard đã hết, `30a8334` hoạt động đúng trên máy thật). Restart → dữ liệu persist, không crash.
