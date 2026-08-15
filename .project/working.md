@@ -2,6 +2,15 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## Privacy policy bỏ GitHub repo + banner flush nav + icon/feature graphic (2026-08-15)
+
+- [2026-08-15] User yêu cầu 4 việc: (1) update privacy policy — nội dung KHÔNG nhắc tới GitHub repo; (2) banner ads đang "chênh vênh", chưa sát bottom nav buttons — sửa cho chạm gần nav; (3) tạo App Icon `icon.png` 512×512 (đã có từ trước — verify lại OK); (4) tạo Feature Graphic 1024×500.
+- [2026-08-15] Xong #1: bỏ mọi mention GitHub repo khỏi privacy policy EN+VI — section Contact trong `docs/privacy-policy.md` + `docs/privacy-policy.html` thay link repo bằng email `hoangsoft90@gmail.com` (mailto). Redeploy: gh-pages branch `index.html` = copy mới của `privacy-policy.html`, push `7c1db79` → live tại https://hoangsoft90.github.io/SubscriptionTracker/ (HTTP 200 verified; Pages build queued).
+- [2026-08-15] Xong #2 (root cause): banner nằm trong `bottomNavigationBar` của **Scaffold trong** (mỗi tab), còn `NavigationBar` nằm ở Scaffold shell ngoài → banner lơ lửng giữa content và nav bar + `SafeArea(top:false)` thêm bottom inset → gap "chênh vênh". Fix: chuyển banner lên **shell** (`_AppShell` trong `app_router.dart`) — `bottomNavigationBar` giờ là `Column(min)` = `[BannerAdView, NavigationBar]` → banner nằm TRỰC TIẾP trên nav buttons, đều cả 3 tab; bỏ `SafeArea` trong `BannerAdView` (NavigationBar bên dưới đã handle bottom inset) → banner chạm sát nav. Xóa banner khỏi `home_screen.dart` + `subscription_list_screen.dart` (bỏ imports/`showAds` watch không còn dùng). FAB vẫn nổi phía trên banner (không đè).
+- [2026-08-15] Xong #3: `icon.png` (512×512 RGB) đã tồn tại từ 2026-08-13 — verify kích thước/design (teal gradient rounded-square + white card) OK, không cần tạo lại.
+- [2026-08-15] Xong #4: tạo **`feature-graphic.png` (1024×500)** bằng PIL từ brand của icon — teal gradient nền + white rounded card chứa icon (scale từ icon.png) + title "SubTrack" + subtitle/tagline/3 bullets, DejaVu Sans; verify tất cả text fit trong bounds (max 498px/line). Dùng cho Play Store listing.
+- [2026-08-15] Verify: `flutter analyze` 0 issues; `flutter test` **247/247 pass** (banner move lên shell không phá test — `showAdsProvider` false trong test, NavigationBar finder vẫn 1 widget). Không secret trong diff. Commit `36edad7` push `main` → GH Actions Build Debug APK `31860338953` in_progress (build APK mới chứa fix banner shell); gh-pages push `7c1db79`.
+
 ## OpenSpec retrospective + docs refresh .project/ (2026-08-15)
 
 - [2026-08-15] User yêu cầu: (1) cập nhật openspec cho toàn bộ work đã ship từ sau change cuối `subtrack-guidance` (2026-08-12); (2) tuân thủ `.project/ai-rules.md` cập nhật `.project/` (state.md/working.md/architecture.md) theo trạng thái mới.
