@@ -485,6 +485,11 @@ class AppLocalizationsVi extends AppLocalizations {
   String get settingsExchangeRatesSave => 'Lưu tỷ giá';
 
   @override
+  String settingsExchangeRatesInvalid(String currency) {
+    return 'Nhập tỷ giá hợp lệ lớn hơn 0 cho $currency';
+  }
+
+  @override
   String get settingsTheme => 'Giao diện';
 
   @override
@@ -564,6 +569,10 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get paywallPurchased =>
       'Bạn đã là Pro — cảm ơn đã ủng hộ phần mềm riêng tư!';
+
+  @override
+  String get paywallError =>
+      'Không thể hoàn tất giao dịch mua. Vui lòng thử lại.';
 
   @override
   String paywallSlotsUsed(int used) {

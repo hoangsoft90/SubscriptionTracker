@@ -325,11 +325,14 @@ class _ExchangeRatesSectionState extends ConsumerState<_ExchangeRatesSection> {
   }
 
   Future<void> _save() async {
+    final l10n = context.l10n;
     final parsed = <String, double>{};
     for (final entry in _controllers.entries) {
       final value = double.tryParse(entry.value.text.trim());
       if (value == null || value <= 0) {
-        setState(() => _error = '${entry.key}: invalid rate');
+        setState(
+          () => _error = l10n.settingsExchangeRatesInvalid(entry.key),
+        );
         return;
       }
       parsed[entry.key] = value;

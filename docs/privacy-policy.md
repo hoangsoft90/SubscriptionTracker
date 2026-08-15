@@ -107,7 +107,7 @@ About screen as well.
 ## 11. Contact
 
 Questions about this policy: please contact us at
-<hoangsoft90@gmail.com>.
+<haibasoftware@gmail.com>.
 
 ---
 
@@ -218,4 +218,4 @@ hình Giới thiệu của ứng dụng.
 ## 11. Liên hệ
 
 Câu hỏi về chính sách này: vui lòng liên hệ chúng tôi qua email
-<hoangsoft90@gmail.com>.
+<haibasoftware@gmail.com>.

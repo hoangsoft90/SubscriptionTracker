@@ -950,6 +950,12 @@ abstract class AppLocalizations {
   /// **'Save rates'**
   String get settingsExchangeRatesSave;
 
+  /// No description provided for @settingsExchangeRatesInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid rate greater than 0 for {currency}'**
+  String settingsExchangeRatesInvalid(String currency);
+
   /// No description provided for @settingsTheme.
   ///
   /// In en, this message translates to:
@@ -1099,6 +1105,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You\'re Pro — thanks for supporting private software!'**
   String get paywallPurchased;
+
+  /// No description provided for @paywallError.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase couldn\'t be completed. Please try again.'**
+  String get paywallError;
 
   /// No description provided for @paywallSlotsUsed.
   ///

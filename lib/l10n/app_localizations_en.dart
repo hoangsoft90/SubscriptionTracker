@@ -485,6 +485,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsExchangeRatesSave => 'Save rates';
 
   @override
+  String settingsExchangeRatesInvalid(String currency) {
+    return 'Enter a valid rate greater than 0 for $currency';
+  }
+
+  @override
   String get settingsTheme => 'Appearance';
 
   @override
@@ -564,6 +569,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get paywallPurchased =>
       'You\'re Pro — thanks for supporting private software!';
+
+  @override
+  String get paywallError =>
+      'Purchase couldn\'t be completed. Please try again.';
 
   @override
   String paywallSlotsUsed(int used) {

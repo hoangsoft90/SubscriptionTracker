@@ -282,6 +282,14 @@
   "settingsExchangeRatesTitle": "Exchange rates (fallback)",
   "settingsExchangeRatesHint": "Used when offline. Live rates from the free API update automatically when online.",
   "settingsExchangeRatesSave": "Save rates",
+  "settingsExchangeRatesInvalid": "Enter a valid rate greater than 0 for {currency}",
+  "@settingsExchangeRatesInvalid": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "settingsTheme": "Appearance",
   "settingsThemeSystem": "System",
   "settingsThemeLight": "Light",
@@ -314,6 +322,7 @@
   "paywallBuy": "Unlock Pro",
   "paywallRestore": "Restore Purchase",
   "paywallPurchased": "You're Pro — thanks for supporting private software!",
+  "paywallError": "Purchase couldn't be completed. Please try again.",
   "paywallSlotsUsed": "{used} of 10 slots used",
   "@paywallSlotsUsed": {
     "placeholders": {

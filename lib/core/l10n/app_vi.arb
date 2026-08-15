@@ -282,6 +282,14 @@
   "settingsExchangeRatesTitle": "Tỷ giá hối đoái (dự phòng)",
   "settingsExchangeRatesHint": "Dùng khi ngoại tuyến. Tỷ giá trực tuyến từ API miễn phí tự cập nhật khi có mạng.",
   "settingsExchangeRatesSave": "Lưu tỷ giá",
+  "settingsExchangeRatesInvalid": "Nhập tỷ giá hợp lệ lớn hơn 0 cho {currency}",
+  "@settingsExchangeRatesInvalid": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "settingsTheme": "Giao diện",
   "settingsThemeSystem": "Hệ thống",
   "settingsThemeLight": "Sáng",
@@ -314,6 +322,7 @@
   "paywallBuy": "Mở khóa Pro",
   "paywallRestore": "Khôi phục giao dịch mua",
   "paywallPurchased": "Bạn đã là Pro — cảm ơn đã ủng hộ phần mềm riêng tư!",
+  "paywallError": "Không thể hoàn tất giao dịch mua. Vui lòng thử lại.",
   "paywallSlotsUsed": "{used} trên 10 chỗ đã dùng",
   "@paywallSlotsUsed": {
     "placeholders": {

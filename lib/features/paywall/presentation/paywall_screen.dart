@@ -6,8 +6,8 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/providers.dart';
 import '../../subscriptions/application/subscription_list_controller.dart';
-import '../../subscriptions/domain/subscription_status.dart';
 import '../entitlement_controller.dart';
+import '../free_tier.dart';
 import '../purchase_gateway.dart';
 
 /// One-time Lifetime Pro paywall (spec §2.8): a single non-consumable
@@ -44,7 +44,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     if (outcome == PurchaseOutcome.purchased) {
       _show(context.l10n.paywallPurchased);
     } else if (outcome != PurchaseOutcome.cancelled) {
-      _show(context.l10n.backupErrorInvalidFile); // generic failure copy
+      _show(context.l10n.paywallError);
     }
   }
 
@@ -58,7 +58,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     if (outcome == PurchaseOutcome.purchased) {
       _show(context.l10n.paywallPurchased);
     } else if (outcome != PurchaseOutcome.cancelled) {
-      _show(context.l10n.backupErrorInvalidFile);
+      _show(context.l10n.paywallError);
     }
   }
 
@@ -74,11 +74,13 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     final theme = Theme.of(context);
     final isPro = ref.watch(proEntitlementControllerProvider).value ?? false;
     final listState = ref.watch(subscriptionListControllerProvider).value;
+    // Slot usage must match the add-form gate exactly: ACTIVE +
+    // PENDING_CANCELLATION both consume a free-tier slot (plan2_final §5) —
+    // otherwise a user at 9 active + 1 pending-cancellation would see "9 of
+    // 10" here yet be hard-blocked when adding.
     final activeCount = listState == null
         ? 0
-        : listState.subscriptions
-              .where((s) => s.status == SubscriptionStatus.active)
-              .length;
+        : paywallSlotCount(listState.subscriptions);
     // Deep-link edge case: when /paywall is reached directly (web URL,
     // notification, cold start) there is no back stack to pop — offer a way
     // home instead of leaving the user stranded. `maybeOf` keeps widget tests
