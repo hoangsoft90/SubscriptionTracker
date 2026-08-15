@@ -92,6 +92,11 @@ SQLite (mobile, PRAGMA user_version v2)  |  localStorage (web)
     - `/more` → MoreTab; children: `settings`, `categories`, `backup`
   - `/calendar` (money calendar), `/paywall` (top-level, có nút Home khi vào thẳng)
   - `errorBuilder` recovery page cho path không tồn tại
+- **Banner placement (2026-08-15)**: `_AppShell` (shell Scaffold) —
+  `bottomNavigationBar` = `Column [BannerAdView, NavigationBar]` → banner nằm
+  trực tiếp trên nav buttons, đều cả 3 tab (Home/Subscriptions/More), không
+  SafeArea gap (NavigationBar bên dưới handle bottom inset). Banner KHÔNG còn
+  nằm trong per-tab Scaffold (Home/Subscriptions); FAB nổi phía trên Column này.
 - **Lưu ý test**: indexedStack giữ các branch sống (offstage) — `find.text(...)`
   có thể match nhiều branch; dùng `findsWidgets` hoặc scoped finder khi cần.
   Page transition cũng cần chờ (tap icon AppBar quá sớm sẽ trượt ra ngoài

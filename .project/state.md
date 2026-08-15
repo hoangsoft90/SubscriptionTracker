@@ -1,6 +1,6 @@
 # State (trạng thái hiện tại)
 
-> Cập nhật lần cuối: 2026-08-15 (phiên: Ads + Multi-currency + Release infra + OpenSpec).
+> Cập nhật lần cuối: 2026-08-15 (phiên: Ads + Multi-currency + Release infra + OpenSpec + Store polish).
 > File này đổi thường xuyên — dùng ISO date `YYYY-MM-DD` cho mọi mục.
 > Chi tiết theo ngày ở `working.md`; quy tắc code ở `ai-rules.md`.
 
@@ -15,13 +15,15 @@
 | — | Storage platform split (web localStorage) | 175/175 tests | ✅ Hoàn thành (2026-08-10) |
 | — | Guidance + Review fixes | `subtrack-guidance` | ✅ Hoàn thành (2026-08-12) |
 | — | Ads + Multi-currency + Release infra + Display reliability | `subtrack-monetization-release` | ✅ Hoàn thành (2026-08-15, retrospective) |
+| — | Store polish (banner shell flush nav, privacy email, feature graphic, code-review fixes) | `subtrack-store-polish` | ✅ Hoàn thành (2026-08-15, retrospective) |
 | — | Platform config (targetSdk 36, network_security_config, package `com.hoangsoft.subtrack`) | — | ✅ Hoàn thành (2026-08-11/15) |
 
 ## Test status (2026-08-15)
 
 - **247/247 tests pass** ✓
 - `flutter analyze` — **No issues found** ✓
-- GH Actions: tách 2 workflow — `build-debug-apk.yml` (debug APK, no keystore, push main) + `build-release-aab.yml` (release AAB ký thật từ GitHub Secrets, manual). Run debug mới nhất cho package mới đang build.
+- GH Actions: tách 2 workflow — `build-debug-apk.yml` (debug APK, no keystore, push main) + `build-release-aab.yml` (release AAB ký thật từ GitHub Secrets, manual). Run debug mới nhất (chứa banner shell fix + 3 code-review fixes) đang build.
+- OpenSpec: **7/7 changes validate pass** (6 cũ + `subtrack-store-polish`).
 
 Phân bổ tests (chính):
 - Core: `money_test`, `billing_calculator_test`, `data_storage_test`, `local_storage_repository_test` (web storage), `backup_test`, `notifications_test`, `l10n_test`, `ads_test` (8: cooldown/frequency policy + test-ads default true), **`exchange_rates_test`** (conversion USD-pivot, missing-rate null, sumConvertedTo, defaults)
@@ -37,7 +39,8 @@ Phân bổ tests (chính):
       backup reinstall restore (2.6), IAP sandbox (3.5), privacy network on-device (5.2).
 3. [ ] Cài APK mới (package `com.hoangsoft.subtrack`) lên máy thật + test lại:
       add → 2 tab update ngay, pull-down giữ data, chờ ad load list vẫn hiển thị,
-      FAB không bị banner che.
+      FAB không bị banner che; banner chạm sát nav buttons (banner shell); paywall
+      lỗi hiện đúng copy + slot count khớp gate.
 4. [ ] OCR (open-code-review) đang lỗi 401 config — cần user sửa; fallback hiện
       dùng code-reviewer + review mặc định.
 5. [ ] Sync/archive OpenSpec change cũ vào `openspec/specs/` khi có nhu cầu.
@@ -48,6 +51,17 @@ Phân bổ tests (chính):
 
 ## Ghi chú phiên gần đây
 
+- **2026-08-15 (store-polish)**: Banner chuyển lên **shell** (`_AppShell`
+  `bottomNavigationBar` = `Column [BannerAdView, NavigationBar]`) — nằm trực tiếp
+  trên nav buttons, đều cả 3 tab, bỏ SafeArea gap; xóa banner khỏi Home/Subscriptions
+  (FAB vẫn nổi trên). Privacy policy bỏ GitHub repo → email `haibasoftware@gmail.com`
+  (EN+VI, md+html, gh-pages redeploy `8bca378`). Tạo `feature-graphic.png` 1024×500
+  (PIL, brand teal) + verify `icon.png` 512×512. **Full code review 83 files → fix 3 lỗi:**
+  paywall failure hiện nhầm copy backup → `paywallError` EN+VI; paywall "N/10 slots"
+  đếm ACTIVE-only không khớp gate → `paywallSlotCount`; lỗi tỷ giá Settings hardcode
+  English → `settingsExchangeRatesInvalid`. OpenSpec retrospective `subtrack-store-polish`
+  (3 specs) — validate 7/7. Verify: analyze 0, 247/247. Commits `d4582f9` + `f8b3646`.
+  Xem `working.md` mục 2026-08-15 (3 mục đầu).
 - **2026-08-15**: Ads + Multi-currency + Release infra + Display reliability
   (retrospective OpenSpec `subtrack-monetization-release`):
   - `testAds` default true (tránh AdMob limit tài khoản chưa duyệt); interstitial
