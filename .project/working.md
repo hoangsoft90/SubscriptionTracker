@@ -2,6 +2,15 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## OpenSpec: change subtrack-device-test-fixes (2026-08-15)
+
+- [2026-08-15] User yêu cầu cập nhật openspec retrospective cho phiên device-test + Today-card fix. Tạo change **`subtrack-device-test-fixes`** đúng format delta:
+  - `proposal.md` — Why (verify notification + dialog trên máy thật; device test phát hiện bug Today card) / What Changes / Impact.
+  - `specs/due-alert-notification-verification/spec.md` — device-verified contract: dialog 1 lần/ngày liệt kê renewal hôm nay/mai + trial ≤3 ngày ("renews today"), gate `dueAlertLastShown`; reminder OS-alarm `RTC_WAKEUP` 09:00 ngày billing → `ScheduledNotificationReceiver` (không phụ thuộc app mở); **by-design**: sub renew hôm nay sau 09:00 KHÔNG schedule (skip trigger đã qua + next occurrence ngoài horizon 14 ngày).
+  - `specs/today-card-due-today/spec.md` — `TodayBrief.dueToday` + `clear` gồm `!hasEventToday` + `_TodayCard` render row "in today" mỗi sub due hôm nay; không bao giờ "You're clear" khi có event hôm nay; trường hợp truly clear giữ nguyên.
+  - `tasks.md` — retrospective all [x]: 1. device test (add Netflix thật qua adb, dialog hiện Netflix+YouTube "renews today", gate persist; edit Netflix → 08-16 → `notifScheduledIds=[1537038242]` + alarm 09:00; hành vi due-today-after-9am = by design) · 2. Today-card fix (root cause + 2 file + tests) · 3. verification (analyze 0, 258/258, commit `cae8c8e` push main, GH Actions in_progress, validate, .project/ update).
+- [2026-08-15] Verify: `openspec validate --changes` **9/9 pass** (8 change cũ + 1 mới). Commit + push `main` (docs-only).
+
 ## Device test notification + dialog → Today-card fix (2026-08-15)
 
 - [2026-08-15] User cài debug APK mới nhất (due-alert dialog + ads tắt) lên Pixel 3a thật (adb wireless, package `com.hoangsoft.subtrack`, Android 13, timezone +07) → yêu cầu tạo subscription mới sắp hết hạn để test notification + dialog cảnh báo.
