@@ -2,6 +2,10 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## Fix release AAB signing — storeFile resolve sai module (2026-08-16)
+
+- [2026-08-16] Build release AAB lần đầu bằng keystore thật → **FAIL**: `validateSigningRelease` — `Keystore file '/home/runner/work/.../android/app/keystore/subtrack-release.jks' not found for signing config 'release'`. Root cause: `android/app/build.gradle.kts:50` `storeFile = file(...)` resolve **tương đối theo module `app`** (`android/app/keystore/`), nhưng keystore (local + CI decode) nằm ở `android/keystore/`. Fix: đổi thành `rootProject.file(...)` → `storeFile=keystore/subtrack-release.jks` map về `android/keystore/subtrack-release.jks` — nhất quán với layout local, comment trong build.gradle.kts, key.properties local, và path decode của workflow. Chỉ file `build.gradle.kts` (tracked) đổi; keystore + key.properties vẫn gitignored. Commit + push `main` → re-trigger release AAB workflow.
+
 ## TEST_ADS=true cho debug workflow — ads thật NO_FILL pre-publish (2026-08-16)
 
 - [2026-08-16] User cài APK mới (commit `54b221a` với 2 test device ID, cài 22:07) → **vẫn không thấy ads**. Debug logcat 09:25 (clear + force-stop + relaunch): `MAIN: test devices registered` chạy đúng, nhưng SDK lại in hint test-device ID **THỨ 3 khác hẳn**: `9552D9D634D61C1B28761AD8007CAF65` (trước đó 17:21 `C1D6...` → 21:48 `9E19...`) → **advertising ID của Pixel 3a xoay vòng liên tục** (3 ID trong 16h — bất thường, Play services cấp lại ad ID) → đăng ký ID cụ thể là đuổi theo bóng, vô ích.

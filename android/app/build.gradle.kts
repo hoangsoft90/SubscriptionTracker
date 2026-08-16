@@ -47,7 +47,11 @@ android {
             create("release") {
                 keyAlias = keystoreProperties["keyAlias"] as String
                 keyPassword = keystoreProperties["keyPassword"] as String
-                storeFile = file(keystoreProperties["storeFile"] as String)
+                // Resolve relative to the Gradle root (android/), NOT the app
+                // module — so storeFile=keystore/subtrack-release.jks maps to
+                // android/keystore/subtrack-release.jks, matching where the
+                // keystore actually lives locally and on CI (decoded there).
+                storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
                 storePassword = keystoreProperties["storePassword"] as String
             }
         }
