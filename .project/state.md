@@ -1,6 +1,6 @@
 # State (trạng thái hiện tại)
 
-> Cập nhật lần cuối: 2026-08-15 (phiên: Ads + Multi-currency + Release infra + OpenSpec + Store polish + Store listing + enable_ads flag + Due-alert dialog + Device test notification/dialog + Today-card fix).
+> Cập nhật lần cuối: 2026-08-16 (phiên: Ads real-IDs saga + TEST_ADS debug-only + Release AAB signing fix + OpenSpec retrospective).
 > File này đổi thường xuyên — dùng ISO date `YYYY-MM-DD` cho mọi mục.
 > Chi tiết theo ngày ở `working.md`; quy tắc code ở `ai-rules.md`.
 
@@ -20,14 +20,17 @@
 | — | Platform config (targetSdk 36, network_security_config, package `com.hoangsoft.subtrack`) | — | ✅ Hoàn thành (2026-08-11/15) |
 | — | `enable_ads=false` mặc định (dart-define `ENABLE_ADS`) + Due-alert dialog (1 lần/ngày) | — | ✅ Hoàn thành (2026-08-15) |
 | — | Bật lại ads THẬT: `enable_ads=true` + `test_ads=false` mặc định (test trên phone) | — | ✅ Hoàn thành (2026-08-15) |
-| — | Test-device registration (NO_FILL vì app chưa publish → test ads trên Pixel 3a) | — | ✅ Hoàn thành (2026-08-15) |
+| — | Test-device registration (NO_FILL vì app chưa publish → test ads trên Pixel 3a) | — | ✅ Hoàn thành (2026-08-15) — **ID xoay vòng 3 lần → bỏ lệ thuộc** |
+| — | TEST_ADS=true chỉ cho debug workflow (sample IDs luôn fill); release AAB giữ ID thật | `subtrack-ads-release-infra` | ✅ Hoàn thành (2026-08-16, retrospective) |
+| — | Release AAB ký thật: fix `storeFile` → `rootProject.file` (keystore `android/keystore/`) | `subtrack-ads-release-infra` | ✅ Fix xong (2026-08-16), build re-trigger |
 
 ## Test status (2026-08-15)
 
 - **258/258 tests pass** ✓ (257 cũ + 1 mới `decision_engine_widget_test.dart`: renewal today → hiển thị sub, không "You're clear")
 - `flutter analyze` — **No issues found** ✓
 - GH Actions: tách 2 workflow — `build-debug-apk.yml` (debug APK, no keystore, push main) + `build-release-aab.yml` (release AAB ký thật từ GitHub Secrets, manual). Run debug mới nhất (chứa test-device registration) đang build.
-- OpenSpec: **8/8 changes validate pass** (7 cũ + `subtrack-store-listing`).
+- OpenSpec: **10/10 changes validate pass** (9 cũ + `subtrack-ads-release-infra`).
+- GH Actions: debug workflow giờ build `--dart-define=TEST_ADS=true` (sample IDs — debug APK luôn hiện test ads); release workflow `build-release-aab.yml` build appbundle ký keystore thật từ secrets (run `31923242287` cho `0272a90`).
 
 Phân bổ tests (chính):
 - Core: `money_test`, `billing_calculator_test`, `data_storage_test`, `local_storage_repository_test` (web storage), `backup_test`, `notifications_test`, `l10n_test`, `ads_test` (8: cooldown/frequency policy + test-ads default true), **`exchange_rates_test`** (conversion USD-pivot, missing-rate null, sumConvertedTo, defaults), **`due_alert_test`** (10: service high-priority filter + dialog widget)
@@ -50,19 +53,39 @@ Phân bổ tests (chính):
 4. [ ] OCR (open-code-review) đang lỗi 401 config — cần user sửa; fallback hiện
       dùng code-reviewer + review mặc định.
 5. [ ] Sync/archive OpenSpec change cũ vào `openspec/specs/` khi có nhu cầu.
-6. [x] Đã bật ads thật (`enable_ads=true`, `test_ads=false`) 2026-08-15 để test trên phone.
-      **ĐÃ ĐÍNH CHÍNH**: user xác nhận KHÔNG khai báo package khi tạo AdMob app (chưa
-      publish) → giả thuyết "package mismatch com.subguard.app" sai, không cần đổi ID.
-      **Nguyên nhân thật**: ad unit mới + app chưa publish + chưa traffic → Google
-      NO_FILL. **Đã fix tạm**: đăng ký test device `C1D6E94F7B5739F934186905CC65759A`
-      (Pixel 3a) trong `AdConfig.testDeviceIds` + `updateRequestConfiguration` ở
-      `main.dart` → test ads fill 100% trên đúng phone này (khác device vẫn ads thật);
-      xóa entry sau khi publish + ads thật bắt đầu fill.
-7. [ ] (publish store) Chạy workflow `build-release-aab.yml` (manual) để sinh AAB
-      ký thật submit Play Store.
+6. [x] Bật ads thật (`enable_ads=true`, `test_ads=false`) 2026-08-15 để test trên phone.
+      **KẾT LUẬN (2026-08-16)**: NO_FILL (code 3) pre-publish là cơ chế chống gian lận
+      của AdMob — app chưa publish/ad unit chưa activate thì ads thật không bao giờ
+      fill. Test-device registration vô ích vì advertising ID của Pixel 3a xoay vòng
+      liên tục (3 ID trong 16h: `C1D6`→`9E19`→`9552`). **Giải pháp chốt**: debug
+      workflow build `--dart-define=TEST_ADS=true` (Google sample IDs luôn fill mọi
+      device — verify banner layout); **release AAB giữ ID thật** (không flag). Sau
+      khi publish + activate, ads thật tự fill với ID hiện tại.
+7. [x] (publish store) Chạy workflow `build-release-aab.yml` (manual) để sinh AAB
+      ký thật submit Play Store — **đang build** (run `31923242287`, commit `0272a90`
+      sau fix keystore path). Keystore: `android/keystore/subtrack-release.jks`, alias
+      `upload`, pass `83793900`, SHA256 `B8:9E:20:44:...`, valid 2053.
 
 ## Ghi chú phiên gần đây
 
+- **2026-08-16 (ads real-IDs saga + release AAB signing fix + OpenSpec)**:
+  - **Ads**: debug APK với 2 test device ID vẫn NO_FILL — logcat 09:25 cho thấy SDK
+    in test-device ID THỨ 3 `9552D9D634D61C1B28761AD8007CAF65` (17:21 `C1D6...` →
+    21:48 `9E19...`) → advertising ID máy xoay vòng liên tục → đăng ký ID cụ thể vô
+    ích. `google-services.json` verify đúng `com.hoangsoft.subtrack` (Firebase config
+    — AdMob đọc manifest `APPLICATION_ID` + `ads_config.dart`, cả 2 đúng ID thật).
+    **Chốt giải pháp**: debug workflow `--dart-define=TEST_ADS=true` (sample IDs luôn
+    fill) — debug APK hiện test ads; release AAB giữ ID thật. Commit `eeeb923`.
+  - **Release AAB**: build ký thật lần đầu FAIL `validateSigningRelease` — keystore
+    không tìm thấy vì `storeFile = file(...)` resolve theo module app
+    (`android/app/keystore/`) trong khi keystore ở `android/keystore/`. Fix:
+    `rootProject.file(...)` (commit `0272a90`). Keystore verify: PKCS12, alias
+    `upload`, pass `83793900`, SHA256 `B8:9E:20:44:3B:41:5C:4C:F5:A1:AA:57:F9:C2:8C:35
+    :B9:B9:F0:6A:14:DE:2C:C5:1D:71:7D:EB:C5:A9:C0:15`, valid 2053; 4 secrets có trên
+    repo. Re-trigger run `31923242287` (in_progress).
+  - **OpenSpec**: retrospective `subtrack-ads-release-infra` (2 specs: ads strategy +
+    signing path) — validate **10/10 pass**. Docs `.project/` cập nhật theo ai-rules.
+    Xem `working.md` các mục 2026-08-15/16.
 - **2026-08-15 (test-device registration)**: Test 2 APK (ee4b96d + build mới 17:17)
   trên Pixel 3a → **vẫn `Ad failed to load : 3` (NO_FILL)** dù SDK init OK, app ID hợp
   lệ (log `Not retrying to fetch app settings`), network OK. Đính chính: user KHÔNG

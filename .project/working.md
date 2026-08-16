@@ -2,6 +2,15 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## OpenSpec: change subtrack-ads-release-infra (2026-08-16)
+
+- [2026-08-16] User yêu cầu cập nhật openspec cho toàn bộ work từ sau change cuối. Tạo change retrospective **`subtrack-ads-release-infra`** đúng format delta:
+  - `proposal.md` — Why (real ads verification + signed release AAB phơi bày 2 hành vi nền tảng: NO_FILL pre-publish + advertising ID xoay vòng; lỗi signing keystore path) / What Changes / Impact.
+  - `specs/ads-real-ids-no-fill-strategy/spec.md` — real IDs default (`ENABLE_ADS` true / `TEST_ADS` false); debug workflow `--dart-define=TEST_ADS=true` (sample IDs fill mọi device); test-device best-effort (ID xoay vòng `C1D6`→`9E19`→`9552`); google-services.json = Firebase config, AdMob đọc manifest `APPLICATION_ID` + `ads_config.dart`.
+  - `specs/release-signing-keystore-path/spec.md` — `storeFile = rootProject.file(...)` → `android/keystore/subtrack-release.jks` nhất quán local + CI; keystore identity (PKCS12, alias upload, pass 83793900, SHA256 B8:9E:..., valid 2053) + 4 secrets.
+  - `tasks.md` — retrospective all [x]: 1.8 bước real-ads saga (ee4b96d → 43a863c → 54b221a → eeeb923), 2.5 bước release signing fix (lỗi validateSigningRelease → 0272a90 → re-trigger run 31923242287), 3. verification.
+- [2026-08-16] Verify: `openspec validate --changes` **10/10 pass** (9 change cũ + 1 mới). Cập nhật `.project/` theo ai-rules rồi commit + push `main` (docs-only).
+
 ## Fix release AAB signing — storeFile resolve sai module (2026-08-16)
 
 - [2026-08-16] Build release AAB lần đầu bằng keystore thật → **FAIL**: `validateSigningRelease` — `Keystore file '/home/runner/work/.../android/app/keystore/subtrack-release.jks' not found for signing config 'release'`. Root cause: `android/app/build.gradle.kts:50` `storeFile = file(...)` resolve **tương đối theo module `app`** (`android/app/keystore/`), nhưng keystore (local + CI decode) nằm ở `android/keystore/`. Fix: đổi thành `rootProject.file(...)` → `storeFile=keystore/subtrack-release.jks` map về `android/keystore/subtrack-release.jks` — nhất quán với layout local, comment trong build.gradle.kts, key.properties local, và path decode của workflow. Chỉ file `build.gradle.kts` (tracked) đổi; keystore + key.properties vẫn gitignored. Commit + push `main` → re-trigger release AAB workflow.
