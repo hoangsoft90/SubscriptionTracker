@@ -36,8 +36,14 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
+      # TEST_ADS=true → Google sample ad unit IDs (always fill on ANY device,
+      # no test-device registration needed). Real ad unit IDs return NO_FILL on
+      # debug builds of an unpublished app (AdMob anti-fraud), and this dev
+      # phone's advertising ID keeps rotating so test-device registration is
+      # unreliable. Release AAB (build-release-aab.yml) has NO TEST_ADS flag →
+      # keeps the REAL ad unit IDs for the store.
       - name: Build debug APK (Gradle)
-        run: flutter build apk --debug
+        run: flutter build apk --debug --dart-define=TEST_ADS=true
 
       - name: Upload debug APK artifact
         uses: actions/upload-artifact@v4

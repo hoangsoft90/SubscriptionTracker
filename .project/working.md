@@ -2,6 +2,13 @@
 
 Format: `- [YYYY-MM-DD] status: mô tả` (ISO dates).
 
+## TEST_ADS=true cho debug workflow — ads thật NO_FILL pre-publish (2026-08-16)
+
+- [2026-08-16] User cài APK mới (commit `54b221a` với 2 test device ID, cài 22:07) → **vẫn không thấy ads**. Debug logcat 09:25 (clear + force-stop + relaunch): `MAIN: test devices registered` chạy đúng, nhưng SDK lại in hint test-device ID **THỨ 3 khác hẳn**: `9552D9D634D61C1B28761AD8007CAF65` (trước đó 17:21 `C1D6...` → 21:48 `9E19...`) → **advertising ID của Pixel 3a xoay vòng liên tục** (3 ID trong 16h — bất thường, Play services cấp lại ad ID) → đăng ký ID cụ thể là đuổi theo bóng, vô ích.
+- [2026-08-16] Xác nhận `google-services.json` đúng package `com.hoangsoft.subtrack` (project `subscriptiontracker-94c6d`, mobilesdk_app_id `1:304793624445:...`) — nhưng file này là Firebase config, **AdMob không dùng**; AdMob app ID đọc từ `AndroidManifest.xml` meta-data (`ca-app-pub-6917313063209470~5291822252` — đúng, ID thật) + ad unit IDs từ `ads_config.dart`.
+- [2026-08-16] **Nguyên nhân gốc rốt ráo**: ad unit ID THẬT chỉ fill ads khi app **đã publish + ad unit được activate** (cơ chế chống gian lận AdMob). Debug APK của app chưa publish → **mãi NO_FILL (code 3)** bất kể test-device (ID xoay vòng) hay app ID đúng. Không code nào sửa được điều này — chỉ sample ID của Google fill 100% trên mọi device.
+- [2026-08-16] Fix: `.github/workflows/build-debug-apk.yml` — thêm `--dart-define=TEST_ADS=true` vào `flutter build apk --debug` (kèm comment giải thích). → **debug APK dùng Google sample ad unit IDs, luôn hiển thị banner test ads trên mọi device**, verify layout/UI. **Release AAB (`build-release-aab.yml`) KHÔNG có flag → giữ ID THẬT** cho store. Verify: release workflow grep sạch `TEST_ADS`. Commit + push `main` → GH Actions debug APK tự trigger.
+
 ## Test device ID đã đổi — đăng ký 2 ID (2026-08-15)
 
 - [2026-08-15] User cài APK mới (commit `43a863c`, cài 17:44, có test-device registration) lên Pixel 3a thật → **vẫn không thấy ads**. Debug qua logcat (clear + force-stop + relaunch 21:48):
